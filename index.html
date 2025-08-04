@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EmpathEra Social</title>
+  <script type="module" src="firebase-config.js"></script>
+  <script type="module">
+    import { auth } from './firebase-config.js';
+    import {
+      signInWithEmailAndPassword,
+      createUserWithEmailAndPassword,
+      GoogleAuthProvider,
+      FacebookAuthProvider,
+      signInWithPopup,
+      signOut,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const googleProvider = new GoogleAuthProvider();
+    const facebookProvider = new FacebookAuthProvider();
+
+    document.getElementById("signupBtn").addEventListener("click", () => {
+      const email = document.getElementById("signupEmail").value;
+      const password = document.getElementById("signupPassword").value;
+      createUserWithEmailAndPassword(auth, email, password)
+        .then(() => {
+          alert("Signed up!");
+          window.location.href = 'feed.html';
+        })
+        .catch((error) => alert(error.message));
+    });
+
+    document.getElementById("signinBtn").addEventListener("click", () => {
+      const email = document.getElementById("signinEmail").value;
+      const password = document.getElementById("signinPassword").value;
+      signInWithEmailAndPassword(auth, email, password)
+        .then(() => {
+          alert("Signed in!");
+          window.location.href = 'feed.html';
+        })
+        .catch((error) => alert(error.message));
+    });
+
+    document.getElementById("googlesignin").addEventListener("click", () => {
+      signInWithPopup(auth, googleProvider)
+        .then(() => {
+          alert("Signed in with Google!");
+          window.location.href = 'feed.html';
+        })
+        .catch((error) => alert(error.message));
+    });
+
+    document.getElementById("facebooksignin").addEventListener("click", () => {
+      signInWithPopup(auth, facebookProvider)
+        .then(() => {
+          alert("Signed in with Facebook!");
+          window.location.href = 'feed.html';
+        })
+        .catch((error) => alert(error.message));
+    });
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      signOut(auth).then(() => alert("Signed out."));
+    });
+
+    const userDisplay = document.getElementById("userDisplay");
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        userDisplay.textContent = user.email;
+      } else {
+        userDisplay.textContent = "";
+      }
+    });
+  </script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    .logo {
+      max-width: 150px;
+    }
+    #userDisplay {
+      float: right;
+      font-weight: bold;
+      color: #333;
+    }
+    button {
+      margin: 5px;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .glow-button {
+      background-color: #4CAF50;
+      color: white;
+      box-shadow: 0 0 10px #4CAF50;
+    }
+    .google-button {
+      background-color: #4285F4;
+      color: white;
+    }
+    .facebook-button {
+      background-color: #3b5998;
+      color: white;
+    }
+    .paypal-button {
+      background-color: #003087;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div id="userDisplay"></div>
+  <img src="logo.png" alt="EmpathEra Logo" class="logo" />
+  <h1>Welcome to EmpathEra Social</h1>
+
+  <h3>Signup</h3>
+  <input id="signupEmail" type="email" placeholder="Email" />
+  <input id="signupPassword" type="password" placeholder="Password" />
+  <button class="glow-button" id="signupBtn">Signup</button>
+
+  <h3>Or Sign In</h3>
+  <input id="signinEmail" type="email" placeholder="Email" />
+  <input id="signinPassword" type="password" placeholder="Password" />
+  <button class="glow-button" id="signinBtn">Sign In</button>
+
+  <h3>Social Logins</h3>
+  <button class="google-button" id="googlesignin">Google Sign-In</button>
+  <button class="facebook-button" id="facebooksignin">Facebook Sign-In</button>
+  <button id="logoutBtn">Logout</button>
+
+  <br><br>
+  <button class="paypal-button" onclick="window.location.href='https://paypal.me/jasonnguyen714'">Donate with PayPal</button>
+
+  <p><a href="contact.html">Contact</a> | <a href="about.html">About</a> | <a href="profile.html">Profile</a></p>
+</body>
+</html>
+

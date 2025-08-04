@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>EmpathEra - Home</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f8;
+    }
+    nav {
+      background-color: #1976d2;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      color: white;
+    }
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .links a, .links button {
+      color: white;
+      text-decoration: none;
+      margin-left: 20px;
+      font-size: 16px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: Arial, sans-serif;
+    }
+    .content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 70px);
+      padding: 20px;
+      text-align: center;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="logo">EmpathEra</div>
+    <div class="links">
+      <a href="home.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+      <a href="feed.html">Feed</a>
+      <button onclick="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="content">
+    <h1>Welcome to EmpathEra Social</h1>
+    <p>Your journey to a better world starts here.</p>
+    <p id="user-info"></p>
+  </div>
+
+  <script type="module" src="firebase-config.js"></script>
+  <script type="module" src="auth.js"></script>
+</body>
+</html>
+
+
+

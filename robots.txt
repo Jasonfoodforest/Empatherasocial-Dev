@@ -1,0 +1,9 @@
+User-agent: *
+Disallow: /private/
+Allow: /
+
+Sitemap: https://www.empatherasocial.com/sitemap.xml
+
+
+
+
