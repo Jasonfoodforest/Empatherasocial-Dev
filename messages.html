@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Firebase Chat Demo</title>
+</head>
+<body>
+  <h2>Chat Demo</h2>
+
+  <!-- Create chat -->
+  <div>
+    <h3>Create Chat</h3>
+    <input id="chatId" placeholder="Enter Chat ID" />
+    <input id="participants" placeholder="Participants (comma separated UIDs)" />
+    <button id="createChatBtn">Create Chat</button>
+  </div>
+
+  <hr />
+
+  <!-- Send message -->
+  <div>
+    <h3>Send Message</h3>
+    <input id="currentChatId" placeholder="Chat ID" />
+    <input id="messageInput" placeholder="Type message..." />
+    <button id="sendMessageBtn">Send</button>
+  </div>
+
+  <hr />
+
+  <!-- Show messages -->
+  <div>
+    <h3>Messages</h3>
+    <div id="messages"></div>
+  </div>
+
+  <script type="module" src="firebase-config.js"></script>
+  <script type="module" src="messages.js"></script>
+</body>
+</html>

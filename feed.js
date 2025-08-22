@@ -1,3 +1,4 @@
+// feed.js
 import { db, auth, storage } from './firebase-config.js';
 import {
   collection,
@@ -28,14 +29,19 @@ document.addEventListener("DOMContentLoaded", () => {
   const feedContainer = document.getElementById("feedContainer");
   const logoutBtn = document.getElementById("logoutBtn");
 
+  // Logout handler
   if (logoutBtn) {
-    logoutBtn.addEventListener("click", () => {
-      signOut(auth).then(() => {
+    logoutBtn.addEventListener("click", async () => {
+      try {
+        await signOut(auth);
         window.location.href = "index.html";
-      });
+      } catch (err) {
+        alert("Logout error: " + err.message);
+      }
     });
   }
 
+  // Render a single post
   const renderPost = (postId, data) => {
     const postElement = document.createElement("div");
     postElement.classList.add("post");
@@ -64,44 +70,11 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
     `;
 
-    feedContainer.prepend(postElement);
+    return postElement;
   };
 
-  const attachListeners = () => {
-    document.querySelectorAll(".reactBtn").forEach(btn => {
-      btn.onclick = async () => {
-        const postRef = doc(db, "posts", btn.dataset.id);
-        const type = btn.dataset.type;
-        const snap = await getDoc(postRef);
-        const post = snap.data();
-        const current = post.reactions?.[type] || 0;
-
-        await updateDoc(postRef, {
-          [`reactions.${type}`]: current + 1
-        });
-      };
-    });
-
-    document.querySelectorAll(".addCommentBtn").forEach(btn => {
-      btn.onclick = async () => {
-        const postId = btn.dataset.id;
-        const input = document.querySelector(`.commentInput[data-id="${postId}"]`);
-        const commentText = input.value;
-        const user = auth.currentUser?.email || "Anonymous";
-
-        if (!commentText) return;
-
-        const postRef = doc(db, "posts", postId);
-        await updateDoc(postRef, {
-          comments: arrayUnion({ user, text: commentText })
-        });
-
-        input.value = "";
-      };
-    });
-  };
-
-  postBtn.onclick = async () => {
+  // Post submit
+  postBtn.addEventListener("click", async () => {
     const caption = postCaption.value.trim();
     const user = auth.currentUser?.email || "Anonymous";
     const file = mediaFile.files[0];
@@ -126,15 +99,56 @@ document.addEventListener("DOMContentLoaded", () => {
 
     postCaption.value = "";
     mediaFile.value = "";
-  };
+  });
 
-  onAuthStateChanged(auth, () => {
+  // Listen for auth changes
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      window.location.href = "index.html";
+      return;
+    }
+
+    // Real-time posts
     const q = query(collection(db, "posts"), orderBy("timestamp", "desc"));
     onSnapshot(q, snapshot => {
       feedContainer.innerHTML = "";
-      snapshot.forEach(doc => renderPost(doc.id, doc.data()));
-      attachListeners();
+      snapshot.forEach(docSnap => {
+        const postElement = renderPost(docSnap.id, docSnap.data());
+        feedContainer.appendChild(postElement);
+      });
+
+      // Attach reaction listeners
+      document.querySelectorAll(".reactBtn").forEach(btn => {
+        btn.onclick = async () => {
+          const postRef = doc(db, "posts", btn.dataset.id);
+          const type = btn.dataset.type;
+          const snap = await getDoc(postRef);
+          const post = snap.data();
+          const current = post.reactions?.[type] || 0;
+          await updateDoc(postRef, {
+            [`reactions.${type}`]: current + 1
+          });
+        };
+      });
+
+      // Attach comment listeners
+      document.querySelectorAll(".addCommentBtn").forEach(btn => {
+        btn.onclick = async () => {
+          const postId = btn.dataset.id;
+          const input = document.querySelector(`.commentInput[data-id="${postId}"]`);
+          const commentText = input.value.trim();
+          const username = auth.currentUser?.email || "Anonymous";
+
+          if (!commentText) return;
+
+          const postRef = doc(db, "posts", postId);
+          await updateDoc(postRef, {
+            comments: arrayUnion({ user: username, text: commentText })
+          });
+
+          input.value = "";
+        };
+      });
     });
   });
 });
-

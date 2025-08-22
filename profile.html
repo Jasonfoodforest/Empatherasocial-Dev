@@ -6,63 +6,74 @@
   <script type="module" src="firebase-config.js"></script>
   <script type="module">
     import { auth, db, storage } from './firebase-config.js';
-    import {
-      onAuthStateChanged,
-      signOut
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import {
-      doc,
-      setDoc
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-    import {
-      ref,
-      uploadBytes,
-      getDownloadURL
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
     let currentUser = null;
 
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
       if (user) {
         currentUser = user;
+        await loadProfile();
       } else {
         window.location.href = "index.html";
       }
     });
+
+    async function loadProfile() {
+      const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+      if (userDoc.exists()) {
+        const data = userDoc.data();
+        document.getElementById("name").value = data.name || "";
+        document.getElementById("age").value = data.age || "";
+        document.getElementById("nationality").value = data.nationality || "";
+        document.getElementById("interests").value = data.interests || "";
+
+        // Profile picture fallback
+        document.getElementById("profilePicPreview").src = data.photoURL || "https://dummyimage.com/160x160/ff7043/ffffff&text=Profile";
+
+        document.getElementById("displayName").innerText = data.name || "Your Name";
+        document.getElementById("displayAge").innerText = data.age ? `Age: ${data.age}` : "";
+        document.getElementById("displayNationality").innerText = data.nationality ? `Nationality: ${data.nationality}` : "";
+        document.getElementById("displayInterests").innerText = data.interests ? `Interests: ${data.interests}` : "";
+      } else {
+        // If no user data, set default display
+        document.getElementById("profilePicPreview").src = "https://dummyimage.com/160x160/ff7043/ffffff&text=Profile";
+        document.getElementById("displayName").innerText = "Your Name";
+        document.getElementById("displayAge").innerText = "";
+        document.getElementById("displayNationality").innerText = "";
+        document.getElementById("displayInterests").innerText = "";
+      }
+    }
 
     document.addEventListener("DOMContentLoaded", () => {
       const form = document.getElementById("profileForm");
 
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
-
         const name = document.getElementById("name").value.trim();
         const age = document.getElementById("age").value.trim();
         const nationality = document.getElementById("nationality").value.trim();
         const interests = document.getElementById("interests").value.trim();
         const file = document.getElementById("profilePic").files[0];
 
-        if (!name) {
-          alert("Name is required.");
-          return;
-        }
+        if (!name) { alert("Name is required."); return; }
 
-        let photoURL = "";
+        let photoURL = document.getElementById("profilePicPreview").src || "https://dummyimage.com/160x160/ff7043/ffffff&text=Profile";
         if (file) {
           const storageRef = ref(storage, `profilePics/${currentUser.uid}`);
           await uploadBytes(storageRef, file);
           photoURL = await getDownloadURL(storageRef);
+          document.getElementById("profilePicPreview").src = photoURL;
         }
 
         await setDoc(doc(db, "users", currentUser.uid), {
-          name,
-          age,
-          nationality,
-          interests,
-          photoURL
-        });
+          name, age, nationality, interests, photoURL
+        }, { merge: true });
 
         alert("Profile saved successfully!");
+        await loadProfile();
       });
 
       document.getElementById("logoutBtn").addEventListener("click", () => {
@@ -73,9 +84,9 @@
 
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Poppins', sans-serif;
       margin: 0;
-      background: #f9f9f9;
+      background: linear-gradient(to right, #f4f4f9, #e0e0f8);
       padding: 0;
     }
 
@@ -87,81 +98,137 @@
       align-items: center;
       color: white;
       flex-wrap: wrap;
-    }
-
-    .nav-left {
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     }
 
     .nav-left a {
       color: white;
       text-decoration: none;
       font-weight: bold;
+      margin-right: 16px;
+      transition: 0.3s;
     }
-
-    .nav-left a:hover {
-      text-decoration: underline;
-    }
-
-    .nav-right {
-      display: flex;
-      align-items: center;
-    }
+    .nav-left a:hover { color: #ffd8b0; }
 
     .nav-right button {
       background: white;
       color: #ff7043;
       border: none;
       padding: 6px 14px;
-      border-radius: 4px;
+      border-radius: 6px;
       cursor: pointer;
       font-weight: bold;
+      transition: 0.3s;
     }
+    .nav-right button:hover { background: #ffe0d6; }
 
     .container {
-      max-width: 700px;
-      margin: 30px auto;
-      padding: 20px;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      max-width: 850px;
+      margin: 40px auto;
+      padding: 30px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     }
 
     h2 {
-      margin-bottom: 20px;
+      text-align:center;
+      margin-bottom:30px;
+      font-size: 32px;
+      color: #333;
     }
 
-    label {
+    .profile-header {
+      display: flex;
+      gap: 25px;
+      align-items: center;
+      flex-wrap: wrap;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #eee;
+      justify-content: space-between;
+    }
+
+    #profilePicPreview {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid #ff7043;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+      transition: 0.3s;
+    }
+    #profilePicPreview:hover { transform: scale(1.05); }
+
+    .profile-info-display {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding-right: 20px;
+    }
+
+    .profile-info-display h3 {
+      margin: 0 0 10px 0;
+      font-size: 28px;
+      color: #333;
+    }
+    .profile-info-display p {
+      margin: 6px 0;
+      color: #555;
+      font-size: 17px;
+    }
+
+    form {
+      margin-top: 25px;
+    }
+    form label {
       display: block;
-      margin-top: 10px;
-      font-weight: bold;
+      margin-top: 12px;
+      font-weight: 600;
+      color: #333;
     }
-
-    input[type="text"],
-    input[type="number"],
-    textarea {
+    form input[type="text"],
+    form input[type="number"],
+    form textarea {
       width: 100%;
-      padding: 8px;
+      padding: 10px;
       margin-top: 5px;
       border: 1px solid #ccc;
-      border-radius: 4px;
+      border-radius: 8px;
+      font-size: 15px;
+      transition: 0.3s;
+    }
+    form input[type="text"]:focus,
+    form input[type="number"]:focus,
+    form textarea:focus {
+      border-color: #ff7043;
+      box-shadow: 0 0 5px rgba(255,112,67,0.4);
+      outline: none;
     }
 
-    input[type="file"] {
-      margin-top: 10px;
-    }
+    input[type="file"] { margin-top: 12px; }
 
     button.save-btn {
       margin-top: 20px;
-      background-color: #4CAF50;
+      background-color: #ff7043;
       color: white;
       border: none;
-      padding: 10px 16px;
-      border-radius: 4px;
+      padding: 12px 22px;
+      border-radius: 8px;
       cursor: pointer;
       font-weight: bold;
+      font-size: 16px;
+      transition: 0.3s;
+    }
+    button.save-btn:hover {
+      background-color: #ff8566;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    @media (max-width: 600px) {
+      .profile-header { flex-direction: column; align-items: center; }
+      .profile-info-display { text-align: center; padding-right: 0; }
     }
   </style>
 </head>
@@ -184,6 +251,17 @@
 
   <div class="container">
     <h2>Profile</h2>
+
+    <div class="profile-header">
+      <div class="profile-info-display">
+        <h3 id="displayName">Your Name</h3>
+        <p id="displayAge"></p>
+        <p id="displayNationality"></p>
+        <p id="displayInterests"></p>
+      </div>
+      <img id="profilePicPreview" src="https://dummyimage.com/160x160/ff7043/ffffff&text=Profile" alt="Profile Picture" />
+    </div>
+
     <form id="profileForm">
       <label for="name">Name: <span style="color:red">*</span></label>
       <input type="text" id="name" required />
@@ -205,6 +283,3 @@
   </div>
 </body>
 </html>
-
-
-
