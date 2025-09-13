@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Intelligence • EmpathEra</title>
+  <style>
+    main{max-width:980px;margin:10px auto;padding:0 18px}
+    .panel{background:#1a1d22;border-radius:14px;padding:14px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:14px}
+    .card{background:#1a1d22;border-radius:12px;padding:12px}
+  </style>
+</head>
+<body data-active="intelligence">
+  <main>
+    <h1>Intelligence</h1>
+
+    <section class="panel">
+      <p><strong>Under construction — coming soon.</strong></p>
+      <p><strong>Our mission for Intelligence:</strong> personal tools that help you think clearly and act kindly—summaries you trust, private notes, and small automations that reduce noise and encourage reflection. Calm, transparent, and in your control.</p>
+    </section>
+
+    <section class="grid">
+      <article class="card"><h3>Daily brief</h3><p>Signal over noise. A gentle, customizable digest.</p></article>
+      <article class="card"><h3>Notes & reflections</h3><p>Private space to think; share only when ready.</p></article>
+      <article class="card"><h3>Reading queue</h3><p>Save, summarize, revisit without doom-scrolling.</p></article>
+      <article class="card"><h3>Small automations</h3><p>Remind me to check in, water plants, call a friend.</p></article>
+    </section>
+  </main>
+
+  <script type="module" src="./tabs.js"></script>
+  <script type="module">
+    import { auth } from "./firebase-config.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+    onAuthStateChanged(auth, u => { if (!u) location.href = "./index.html"; });
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Messages • EmpathEra</title>
+  <style>
+    :root {
+      --bg:#0e0f12; --panel:#1a1d22; --muted:#9aa3af; --text:#e5e7eb; --accent:#18c964; --chip:#0f141b;
+    }
+    html,body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto}
+    main{max-width:1100px;margin:18px auto;padding:0 18px}
+    h1{font-size:34px;margin:12px 0 18px}
+    .cols{display:grid;grid-template-columns:300px 1fr;gap:16px}
+    .panel{background:var(--panel);border-radius:14px;padding:12px}
+    .pill{width:100%;text-align:left;padding:10px 12px;border-radius:10px;background:#12161c;border:1px solid #2a2f39;color:#cbd5e1;margin-bottom:8px;cursor:pointer}
+    .pill:hover{background:#161b22}
+    .muted{color:#94a3b8}
+    .roomTitle{display:flex;align-items:center;gap:10px;color:#9fb0c3}
+    .msg{padding:10px 12px;border-radius:10px;background:#10151b;margin-bottom:10px;border:1px solid #202734}
+    .meta{font-size:12px;color:#8aa0b6;margin-bottom:6px;display:flex;gap:8px}
+    .bubble{white-space:pre-wrap}
+    .thumb{max-width:280px;max-height:220px;border-radius:8px;display:block;margin-top:8px}
+    .vid{max-width:360px;max-height:260px;border-radius:8px;display:block;margin-top:8px}
+    .row{display:flex;gap:10px;align-items:center}
+    .input{flex:1;width:100%;padding:10px 12px;border-radius:10px;border:1px solid #2a2f39;background:#0f1217;color:var(--text)}
+    .btn{background:var(--accent);color:#08110d;border:none;padding:10px 14px;border-radius:10px;cursor:pointer}
+    .btn-ghost{background:#0f141b;border:1px solid #253043;color:#cbd5e1}
+    .chips{display:flex;gap:8px;flex-wrap:wrap}
+    .chip{background:var(--chip);border:1px solid #253043;color:#cbd5e1;padding:6px 10px;border-radius:999px;font-size:12px}
+    #progress{font-size:12px;color:#86efac;margin-left:8px}
+    #err{color:#fca5a5;margin-top:6px}
+  </style>
+</head>
+<body data-active="message">
+  <!-- Header / tabs -->
+  <script type="module" src="./tabs.js"></script>
+
+  <main>
+    <h1>Messages</h1>
+    <div class="cols">
+      <aside class="panel">
+        <h3 class="muted" style="margin-top:0">Chats</h3>
+        <div id="chatList"></div>
+
+        <div class="chips" style="margin:10px 0 4px">
+          <span class="chip">Direct</span>
+        </div>
+
+        <h3 class="muted" style="margin-top:16px">Groups</h3>
+        <div id="groupList"></div>
+      </aside>
+
+      <section class="panel">
+        <div class="roomTitle">
+          <span>Chat with:</span>
+          <strong id="activeTitle">(none)</strong>
+          <span id="progress"></span>
+        </div>
+
+        <div id="messages" style="margin:10px 0;min-height:280px;"></div>
+
+        <div class="row">
+          <input id="messageInput" class="input" placeholder="Type a message..." />
+          <input id="fileInput" type="file" accept="image/*,video/*" style="display:none" />
+          <button id="attachBtn" class="btn-ghost" title="Attach image/video">Attach</button>
+          <button id="sendBtn" class="btn">Send</button>
+        </div>
+        <div id="err"></div>
+      </section>
+    </div>
+  </main>
+
+  <script type="module">
+    import app, { auth, db, storage } from "./firebase-config.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+    import {
+      collection, query, where, orderBy, onSnapshot, addDoc, doc, getDoc, setDoc, serverTimestamp, updateDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+    import {
+      ref as sRef, uploadBytesResumable, getDownloadURL
+    } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-storage.js";
+
+    // --- UI refs
+    const ui = {
+      chatList: document.getElementById('chatList'),
+      groupList: document.getElementById('groupList'),
+      messages: document.getElementById('messages'),
+      messageInput: document.getElementById('messageInput'),
+      fileInput: document.getElementById('fileInput'),
+      attachBtn: document.getElementById('attachBtn'),
+      sendBtn: document.getElementById('sendBtn'),
+      activeTitle: document.getElementById('activeTitle'),
+      progress: document.getElementById('progress'),
+      err: document.getElementById('err'),
+    };
+
+    // --- State
+    let me = null, unsubMsgs = null, pendingFile = null;
+    let active = { type:null, roomKey:null, groupId:null, members:[] };
+
+    // consistent room key (email-based) for direct chats
+    const roomKey = (a, b) => [a, b].sort((x,y)=>x.localeCompare(y)).join("_");
+
+    onAuthStateChanged(auth, async (u)=>{
+      if(!u){ location.replace("./index.html"); return; }
+      me = { uid:u.uid, email:u.email||"" };
+      loadChats();
+      loadGroups();
+    });
+
+    // ---------- Lists ----------
+    function loadChats(){
+      ui.chatList.innerHTML="";
+      const q = query(collection(db,"chats"),
+                      where("participants","array-contains", me.email),
+                      orderBy("lastAt","desc"));
+      onSnapshot(q, snap=>{
+        ui.chatList.innerHTML="";
+        snap.forEach(d=>{
+          const c = d.data();
+          const other = (c.participants||[]).find(p=>p!==me.email) || "(unknown)";
+          const btn = document.createElement("button");
+          btn.className = "pill";
+          btn.textContent = other;
+          btn.onclick = ()=> openDirect(other);
+          ui.chatList.appendChild(btn);
+        });
+      }, showErr);
+    }
+
+    function loadGroups(){
+      ui.groupList.innerHTML="";
+      const q = query(collection(db,"groups"), orderBy("createdAt","desc"));
+      onSnapshot(q, snap=>{
+        ui.groupList.innerHTML="";
+        snap.forEach(d=>{
+          const g = d.data();
+          const btn = document.createElement("button");
+          btn.className = "pill";
+          btn.textContent = `${g.name||"Group"} (${(g.members||[]).length} members)`;
+          btn.onclick = ()=> openGroup(d.id, g.members||[]);
+          ui.groupList.appendChild(btn);
+        });
+      }, showErr);
+    }
+
+    // ---------- Open rooms ----------
+    function openDirect(peerEmail){
+      const rk = roomKey(me.email, peerEmail);
+      active = { type:"direct", roomKey: rk, groupId: null, members: [me.email, peerEmail] };
+      ui.activeTitle.textContent = peerEmail;
+      bindMessages("messages", rk);
+      // ensure chat doc exists
+      setDoc(doc(db,"chats", rk), {
+        participants: active.members,
+        lastAt: serverTimestamp(),
+        lastMsg: ""
+      }, { merge:true });
+    }
+
+    function openGroup(groupId, members){
+      active = { type:"group", roomKey: null, groupId, members };
+      ui.activeTitle.textContent = `${members.length} members`;
+      bindMessages("groupMessages", groupId);
+    }
+
+    function bindMessages(root, id){
+      if (unsubMsgs) unsubMsgs();
+      ui.messages.innerHTML="";
+      const q = query(collection(db, root, id, root==="messages"?"chats":"items"),
+                      orderBy("createdAt","asc"));
+      unsubMsgs = onSnapshot(q, (snap)=>{
+        ui.messages.innerHTML="";
+        snap.forEach(docSnap=>{
+          renderMsg(docSnap.data());
+        });
+        ui.messages.scrollTop = ui.messages.scrollHeight;
+      }, showErr);
+    }
+
+    function renderMsg(m){
+      const div = document.createElement("div");
+      div.className = "msg";
+      const when = m.createdAt?.toDate?.() ? m.createdAt.toDate().toLocaleString() : "";
+      div.innerHTML = `
+        <div class="meta">
+          <span>${m.senderEmail || m.sender || "anon"}</span>
+          <span>•</span>
+          <span>${when}</span>
+        </div>
+        <div class="bubble"></div>
+      `;
+      if (m.text) div.querySelector(".bubble").textContent = m.text;
+
+      if (m.mediaURL) {
+        if ((m.mediaType||"").startsWith("video/")) {
+          const v = document.createElement("video");
+          v.className = "vid";
+          v.src = m.mediaURL; v.controls = true; v.preload = "metadata";
+          div.appendChild(v);
+        } else {
+          const img = document.createElement("img");
+          img.className = "thumb";
+          img.src = m.mediaURL; img.alt = "";
+          div.appendChild(img);
+        }
+      }
+      ui.messages.appendChild(div);
+    }
+
+    // ---------- Compose ----------
+    ui.attachBtn.onclick = ()=> ui.fileInput.click();
+    ui.fileInput.onchange = (e)=> {
+      pendingFile = e.target.files?.[0] || null;
+    };
+
+    ui.sendBtn.onclick = async ()=>{
+      if (!active.type) return showErr({message:"Pick a chat first"});
+      const text = (ui.messageInput.value||"").trim();
+      if (!text && !pendingFile) return;
+
+      ui.err.textContent=""; ui.progress.textContent="";
+
+      try{
+        let mediaURL = "", mediaType = "";
+        if (pendingFile) {
+          const folder = active.type==="direct" ? active.roomKey : active.groupId;
+          const path = `chat_uploads/${folder}/${me.uid}/${Date.now()}-${pendingFile.name}`;
+          const r = sRef(storage, path);
+          const task = uploadBytesResumable(r, pendingFile);
+          task.on("state_changed", snap=>{
+            const pct = Math.round((snap.bytesTransferred/snap.totalBytes)*100);
+            ui.progress.textContent = `Uploading ${pct}%`;
+          });
+          await task;
+          mediaURL = await getDownloadURL(r);
+          mediaType = pendingFile.type || "";
+          ui.progress.textContent = "";
+        }
+
+        const base = active.type==="direct"
+          ? collection(db, "messages", active.roomKey, "chats")
+          : collection(db, "groupMessages", active.groupId, "items");
+
+        await addDoc(base, {
+          text, mediaURL, mediaType,
+          senderUid: me.uid, senderEmail: me.email,
+          createdAt: serverTimestamp()
+        });
+
+        if (active.type==="direct") {
+          await updateDoc(doc(db,"chats", active.roomKey), {
+            lastAt: serverTimestamp(),
+            lastMsg: text ? text.slice(0,120) : (mediaType.startsWith("video/")?"[video]":"[image]")
+          });
+        }
+
+        ui.messageInput.value = "";
+        ui.fileInput.value = "";
+        pendingFile = null;
+      }catch(e){ showErr(e); }
+    };
+
+    function showErr(e){ console.error(e); ui.err.textContent = e?.message || String(e); }
+  </script>
+</body>
+</html>
+
+

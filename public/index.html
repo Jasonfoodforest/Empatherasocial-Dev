@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EmpathEra Social — Sign in</title>
+  <style>
+    :root { --bg:#0e0f12; --panel:#1a1d22; --muted:#9aa3af; --text:#e5e7eb; --accent:#18c964; }
+    html,body{margin:0;background:var(--bg);color:var(--text);font:16px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
+    .wrap{max-width:860px;margin:24px auto;padding:0 18px}
+    header{display:flex;align-items:center;gap:16px;margin-bottom:16px}
+    header img{width:76px;height:76px;border-radius:12px;background:#0c0e12}
+    h1{margin:6px 0 0;font-size:28px}
+    .sub{color:var(--muted)}
+    .panel{background:var(--panel);border-radius:14px;padding:16px;margin:16px 0}
+    label{display:block;margin:10px 0 6px;color:#cbd5e1}
+    input[type="email"],input[type="password"]{
+      width:100%;padding:10px 12px;border-radius:10px;border:1px solid #2a2f39;background:#0f1217;color:var(--text);
+    }
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .btn{background:var(--accent);color:#08110d;border:none;padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:600}
+    .btn.secondary{background:#0f1217;color:#e5e7eb;border:1px solid #2a2f39}
+    .btn.google{background:#ffffff;color:#111}
+    .btn.facebook{background:#1877f2;color:#fff}
+    .btn.paypal{background:#003087;color:#fff}
+    .stack{display:flex;flex-direction:column;gap:10px}
+    .err{color:#fca5a5;margin-top:10px;min-height:20px}
+    a { color:#6ee7ff; }
+    footer{margin:24px 0;color:var(--muted)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <img src="./logo.png" alt="EmpathEra logo" />
+      <div>
+        <h1>Welcome to EmpathEra Social</h1>
+        <div class="sub">Sign up or sign in to join a kinder network built on empathy.</div>
+      </div>
+    </header>
+
+    <div class="panel">
+      <h2>Email/Password</h2>
+      <div class="row">
+        <div class="stack">
+          <label for="inEmail">Email</label>
+          <input id="inEmail" type="email" placeholder="you@example.com" autocomplete="username" />
+        </div>
+        <div class="stack">
+          <label for="inPass">Password</label>
+          <input id="inPass" type="password" placeholder="••••••••" autocomplete="current-password" />
+        </div>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <button id="btnSignIn" class="btn">Sign In</button>
+        <button id="btnCreate" class="btn secondary">Create Account</button>
+      </div>
+      <div id="err" class="err"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Social Logins</h2>
+      <div class="row">
+        <button id="btnGoogle" class="btn google">Google Sign-In</button>
+        <button id="btnFacebook" class="btn facebook">Facebook Sign-In</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Support EmpathEra</h2>
+      <div class="row">
+        <a class="btn paypal" href="https://paypal.me/jasonnguyen714" target="_blank" rel="noopener">Donate with PayPal</a>
+        <div class="sub" style="align-self:center">Contact: <a href="mailto:nghia@empatherasocial.com">nghia@empatherasocial.com</a> · <a href="./about.html">About</a></div>
+      </div>
+    </div>
+
+    <footer>© <span id="yr"></span> EmpathEra</footer>
+  </div>
+
+  <!-- Firebase + auth code -->
+  <script type="module">
+    import app, { auth } from "./firebase-config.js";
+
+    import {
+      onAuthStateChanged,
+      signInWithEmailAndPassword,
+      createUserWithEmailAndPassword,
+      GoogleAuthProvider,
+      FacebookAuthProvider,
+      signInWithPopup,
+    } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+
+    // Elements
+    const el = (id)=>document.getElementById(id);
+    const inEmail   = el("inEmail");
+    const inPass    = el("inPass");
+    const btnSignIn = el("btnSignIn");
+    const btnCreate = el("btnCreate");
+    const btnGoogle = el("btnGoogle");
+    const btnFacebook = el("btnFacebook");
+    const errEl     = el("err");
+    el("yr").textContent = new Date().getFullYear();
+
+    function showErr(e){
+      console.error(e);
+      const msg = e?.message || String(e) || "Something went wrong.";
+      errEl.textContent = msg.replace("Firebase: ", "");
+      setTimeout(()=>errEl.textContent="", 6000);
+    }
+
+    function goHome(){
+      // after login, head to feed
+      window.location.replace("./feed.html");
+    }
+
+    onAuthStateChanged(auth, (u) => {
+      if (u) goHome();
+    });
+
+    btnSignIn.addEventListener("click", async () => {
+      try {
+        const email = (inEmail.value||"").trim();
+        const pass  = inPass.value||"";
+        if(!email || !pass) throw new Error("Please enter email and password.");
+        await signInWithEmailAndPassword(auth, email, pass);
+        goHome();
+      } catch (e){ showErr(e); }
+    });
+
+    btnCreate.addEventListener("click", async () => {
+      try {
+        const email = (inEmail.value||"").trim();
+        const pass  = inPass.value||"";
+        if(!email || !pass) throw new Error("Please enter email and password.");
+        await createUserWithEmailAndPassword(auth, email, pass);
+        goHome();
+      } catch (e){ showErr(e); }
+    });
+
+    // Google
+    btnGoogle.addEventListener("click", async () => {
+      try {
+        const provider = new GoogleAuthProvider();
+        await signInWithPopup(auth, provider);
+        goHome();
+      } catch (e){ showErr(e); }
+    });
+
+    // Facebook
+    btnFacebook.addEventListener("click", async () => {
+      try {
+        const provider = new FacebookAuthProvider();
+        // Optional: request email scope explicitly
+        provider.addScope("email");
+        await signInWithPopup(auth, provider);
+        goHome();
+      } catch (e){ showErr(e); }
+    });
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+

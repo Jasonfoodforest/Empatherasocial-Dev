@@ -1,0 +1,5 @@
+"scripts": {
+  "start": "http-server public -p 3001 -c-1",
+  "start:lan": "http-server public -p 3001 -a 0.0.0.0 -c-1"
+}
+
