@@ -4,16 +4,19 @@ import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebas
 import { getStorage } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCegX-9F8lvrBr85U8-9kva0_P8o2Ik81A",
+  apiKey: "AIzaSyDEIU-wH4Br1OGFD7HjTqx57BmSn_X_AwI",
   authDomain: "empatherasocial-dev.firebaseapp.com",
   projectId: "empatherasocial-dev",
-  storageBucket: "empatherasocial-dev.firebasestorage.app", // 🔹 Updated
-  messagingSenderId: "890072969016",
-  appId: "1:890072969016:web:27640b219e0564331c5bcd",
-  measurementId: "G-TDKPK1GP8W"
+  storageBucket: "empatherasocial-dev.appspot.com",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_APP_ID",
+  measurementId: "YOUR_MEASUREMENT_ID"
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-export const storage = getStorage(app);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+export { app, auth, db, storage };
