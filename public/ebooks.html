@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Ebooks • EmpathEra</title>
+  <link rel="icon" href="./logo.png"/>
+  <style>
+    :root { --bg:#0e0f12; --panel:#1a1d22; --muted:#9aa3af; --text:#e5e7eb; --accent:#18c964; }
+    html,body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto}
+    main{max-width:1000px;margin:10px auto;padding:0 18px}
+    h1{font-size:34px;margin:12px 0 18px}
+    .panel{background:var(--panel);border-radius:14px;padding:16px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-top:16px}
+    .card{background:#141821;border:1px solid #252b36;border-radius:14px;padding:14px}
+    .muted{color:#cbd5e1}
+  </style>
+</head>
+<body>
+  <div id="app-header"></div>
+
+  <main>
+    <h1>Ebooks</h1>
+
+    <section class="panel">
+      <p class="muted"><strong>Under construction — coming soon.</strong></p>
+      <p><strong>Our mission for Ebooks:</strong> curate short, practical reads that help people live with empathy and skill—bite-size guides, zines, and field manuals on mindful living, regenerative systems, creative work, emotional health, and values-aligned tech.</p>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h3>Starter Guide to Everyday Empathy</h3>
+        <p class="muted">A quick workbook for better listening, reflection, and action.</p>
+      </article>
+      <article class="card">
+        <h3>Regenerative Kitchen: Grow & Cook</h3>
+        <p class="muted">From balcony herbs to food forests—small steps that scale.</p>
+      </article>
+      <article class="card">
+        <h3>Calm Tech, Kind Tech</h3>
+        <p class="muted">Design principles that respect attention, dignity, and community.</p>
+      </article>
+    </section>
+  </main>
+
+  <script type="module" src="./tabs.js"></script>
+</body>
+</html>

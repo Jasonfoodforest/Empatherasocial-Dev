@@ -1,0 +1,50 @@
+/* Top bar */
+.bar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px}
+
+/* Spread tabs evenly across the available space */
+.tabs.spread{display:flex;flex:1;justify-content:space-evenly;gap:12px}
+.tab{display:block;text-align:center;padding:8px 0;border-radius:10px;text-decoration:none}
+.tab.active{font-weight:700}
+
+/* Right side user area */
+.userbox{display:flex;align-items:center;gap:10px}
+.who{font-weight:600}
+
+/* Evenly-spaced tabs across the row */
+.tabs.even{
+  display:grid;
+  grid-template-columns: repeat(6, 1fr); /* exactly 6 tabs shown above */
+  gap:14px; padding:10px 12px;
+}
+.tab{display:block;text-align:center;padding:8px 0;border-radius:10px;text-decoration:none}
+.tab.active{font-weight:700}
+
+/* User row under tabs */
+.userbar{display:flex;justify-content:space-between;align-items:center;padding:6px 12px}
+.who{font-weight:600}
+
+/* Larger composer */
+.input.big{min-height:110px;font-size:16px}
+
+/* Buttons */
+.btn{background:#16a34a;color:#fff;border:none;padding:8px 14px;border-radius:10px;cursor:pointer}
+.btn-sm{padding:4px 8px;font-size:12px;border-radius:8px}
+.btn-danger{background:#b42318}
+
+/* Layout helpers */
+.grid-2{display:grid;grid-template-columns:260px 1fr;gap:16px}
+.row{display:flex;gap:8px;align-items:center}
+.row.between{justify-content:space-between}
+
+/* Cards/media */
+.card{background:rgba(255,255,255,0.06);border-radius:14px;padding:10px;margin:10px 0}
+.post-img,.post-video{max-width:100%;border-radius:10px;margin-top:6px}
+
+/* Pills for chat/group list */
+.pill{display:block;width:100%;text-align:left;padding:8px 10px;border-radius:12px;margin:6px 0;background:#10b981;color:#fff;border:0;cursor:pointer}
+
+/* Lists */
+.list{margin-top:8px}
+
+
+

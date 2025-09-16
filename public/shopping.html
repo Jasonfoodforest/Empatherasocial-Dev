@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Shopping • EmpathEra</title>
+  <style>
+    main{max-width:980px;margin:10px auto;padding:0 18px}
+    .panel{background:#1a1d22;border-radius:14px;padding:14px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:14px}
+    .card{background:#1a1d22;border-radius:12px;padding:12px}
+    .chiprow{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+    .chip{padding:6px 10px;border-radius:999px;background:#0f1217;border:1px solid #2a2f39;color:#cfe6ff}
+  </style>
+</head>
+<body data-active="shopping">
+  <main>
+    <h1>Shopping</h1>
+
+    <section class="panel">
+      <p><strong>Under construction — coming soon.</strong></p>
+      <p><strong>Our mission for Shopping:</strong> help people buy less but better—products and services that respect people, place, and time. Transparent sourcing, community reviews, repairability, and independent creators front-and-center.</p>
+      <div class="chiprow">
+        <span class="chip">Regenerative</span>
+        <span class="chip">Second-hand</span>
+        <span class="chip">Creator goods</span>
+        <span class="chip">Open-hardware</span>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card"><h3>Local & independent</h3><p>Makers, farmers, small studios, mutual-aid.</p></article>
+      <article class="card"><h3>Durable & repairable</h3><p>Keep it longer. Fix it together.</p></article>
+      <article class="card"><h3>Values filters</h3><p>Fair labor, low-waste, recycled, give-back.</p></article>
+    </section>
+  </main>
+
+  <script type="module" src="./tabs.js"></script>
+  <script type="module">
+    import { auth } from "./firebase-config.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+    onAuthStateChanged(auth, u => { if (!u) location.href = "./index.html"; });
+  </script>
+</body>
+</html>
+
+
+
+
+
+

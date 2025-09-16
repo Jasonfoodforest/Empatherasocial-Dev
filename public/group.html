@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Group • EmpathEra</title>
+  <link rel="icon" href="./logo.png"/>
+  <style>
+    :root { --bg:#0e0f12; --panel:#1a1d22; --muted:#9aa3af; --text:#e5e7eb; --accent:#18c964; }
+    html,body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto}
+    main{max-width:1000px;margin:10px auto;padding:0 18px}
+    h1{font-size:34px;margin:12px 0 18px}
+    .panel{background:var(--panel);border-radius:14px;padding:16px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-top:16px}
+    .card{background:#141821;border:1px solid #252b36;border-radius:14px;padding:14px}
+    .muted{color:#cbd5e1}
+    .tag{display:inline-block;padding:6px 10px;border-radius:8px;background:#0f1217;border:1px solid #2a2f39;color:#a5b4c2;margin:6px 6px 0 0}
+  </style>
+</head>
+<body>
+  <div id="app-header"></div>
+
+  <main>
+    <h1>Groups</h1>
+
+    <section class="panel">
+      <p class="muted"><strong>Under construction — coming soon.</strong></p>
+      <p><strong>Our mission for Groups:</strong> small, respectful spaces to learn and build together—book clubs, creative circles, gardens, studios, and neighborhood projects—with gentle facilitation tools and shared stewardship.</p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Book & practice clubs</h3>
+          <p class="muted">Short cycles, simple prompts, open notes.</p>
+        </div>
+        <div class="card">
+          <h3>Project crews</h3>
+          <p class="muted">Co-create media, mutual aid, civic projects.</p>
+        </div>
+        <div class="card">
+          <h3>Skill exchanges</h3>
+          <p class="muted">Teach one another; peer-to-peer workshops.</p>
+        </div>
+      </div>
+
+      <div style="margin-top:10px">
+        <span class="tag">Weekly rhythm</span>
+        <span class="tag">Rotating facilitator</span>
+        <span class="tag">Shared docs</span>
+        <span class="tag">Opt-in privacy</span>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="./tabs.js"></script>
+</body>
+</html>
