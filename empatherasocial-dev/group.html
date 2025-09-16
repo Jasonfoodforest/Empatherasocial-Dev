@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Groups • EmpathEra</title>
+  <link rel="stylesheet" href="./style.css"/>
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="brand">EmpathEra</div>
+    <nav class="nav">
+      <a href="/feed.html">Feed</a>
+      <a href="/explore.html">Explore</a>
+      <a href="/intelligence.html">Intelligence</a>
+      <a href="/shopping.html">Shopping</a>
+      <a href="/messages.html">Message</a>
+      <a class="active" href="/group.html">Group</a>
+      <a href="/profile.html">Profile</a>
+    </nav>
+    <div class="who">
+      <span id="who"></span>
+      <button id="logoutBtn" class="btn">Logout</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1>Groups</h1>
+
+    <div class="cols" style="gap:14px;">
+      <!-- Groups list -->
+      <section class="panel" style="flex:0 0 280px">
+        <div class="muted" style="margin-bottom:8px;">Your groups</div>
+        <div id="groups" class="list"></div>
+      </section>
+
+      <!-- Chat area -->
+      <section class="panel" style="flex:1;">
+        <div class="muted" style="margin-bottom:8px;">
+          Chat: <span id="roomName" class="muted"></span>
+        </div>
+        <div id="msgs" class="list" style="min-height:380px;"></div>
+
+        <div class="row" style="margin-top:12px; align-items:center; gap:8px;">
+          <input id="msg" class="input" placeholder="Type a message…"/>
+          <input id="file" type="file"/>
+          <button id="sendBtn" class="btn">Send</button>
+        </div>
+        <div id="err" class="err"></div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Firebase + App code -->
+  <script type="module">
+    // Import the shared config (keep ONE file named firebase-config.js)
+    import app, { auth, db, storage } from "./firebase-config.js";
+
+    import {
+      onAuthStateChanged,
+      signOut,
+    } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+
+    import {
+      collection,
+      query,
+      where,
+      onSnapshot,
+      orderBy,
+      addDoc,
+      serverTimestamp,
+      updateDoc,
+      doc,
+    } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+
+    import {
+      ref,
+      uploadBytes,
+      getDownloadURL,
+    } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-storage.js";
+
+    // ---------- UI ----------
+    const whoEl     = document.getElementById("who");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    const groupsEl  = document.getElementById("groups");
+    const roomName  = document.getElementById("roomName");
+    const msgsEl    = document.getElementById("msgs");
+
+    const msgEl     = document.getElementById("msg");
+    const fileEl    = document.getElementById("file");
+    const sendBtn   = document.getElementById("sendBtn");
+    const errEl     = document.getElementById("err");
+
+    let me = null;            // { email, uid, displayName }
+    let activeGroup = null;   // { id, members, createdAt, lastAt }
+    let unsubMsgs = null;
+
+    // ---------- Auth guard ----------
+    onAuthStateChanged(auth, (u) => {
+      if (!u) {
+        location.href = "/index.html";
+        return;
+      }
+      me = {
+        uid: u.uid,
+        email: u.email,
+        displayName: u.displayName || u.email
+      };
+      whoEl.textContent = me.displayName;
+      loadGroups();
+    });
+
+    logoutBtn.addEventListener("click", async () => {
+      await signOut(auth);
+      location.href = "/index.html";
+    });
+
+    // ---------- Load groups that include current user ----------
+    function loadGroups() {
+      // We store emails in 'members' (array). If you store UIDs instead, change to me.uid.
+      const q = query(
+        collection(db, "groups"),
+        where("members", "array-contains", me.email),
+        orderBy("lastAt", "desc")
+      );
+
+      onSnapshot(q, (snap) => {
+        groupsEl.innerHTML = "";
+        if (snap.empty) {
+          const empty = document.createElement("div");
+          empty.className = "muted";
+          empty.textContent = "No groups yet.";
+          groupsEl.appendChild(empty);
+          return;
+        }
+        snap.forEach((d) => renderGroup({ id: d.id, ...d.data() }));
+      }, (e) => showError(e));
+    }
+
+    function renderGroup(g) {
+      const row = document.createElement("button");
+      row.className = "btn ghost";
+      row.style.width = "100%";
+      row.style.justifyContent = "flex-start";
+      row.textContent = g.name || g.id;
+      row.onclick = () => openGroup(g);
+      groupsEl.appendChild(row);
+    }
+
+    // ---------- Open a group (stream messages) ----------
+    function openGroup(g) {
+      activeGroup = g;
+      roomName.textContent = g.name || g.id;
+      msgsEl.innerHTML = "";
+
+      if (unsubMsgs) unsubMsgs();
+
+      const q = query(
+        collection(db, "groupMessages"),
+        where("groupId", "==", g.id),
+        orderBy("createdAt", "asc")
+      );
+
+      unsubMsgs = onSnapshot(q, (snap) => {
+        msgsEl.innerHTML = "";
+        snap.forEach((d) => renderMessage(d.data()));
+        msgsEl.scrollTop = msgsEl.scrollHeight;
+      }, (e) => showError(e));
+    }
+
+    function renderMessage(p) {
+      const card = document.createElement("div");
+      card.className = "card";
+
+      const who = document.createElement("div");
+      who.className = "muted";
+      who.textContent = (p.from || "Guest") + ":";
+
+      const body = document.createElement("div");
+      body.textContent = p.text || "";
+
+      card.appendChild(who);
+      card.appendChild(body);
+
+      if (p.fileUrl) {
+        if ((p.fileType || "").startsWith("image/")) {
+          const img = document.createElement("img");
+          img.src = p.fileUrl;
+          img.className = "post-img";
+          card.appendChild(img);
+        } else if ((p.fileType || "").startsWith("video/")) {
+          const v = document.createElement("video");
+          v.controls = true;
+          v.src = p.fileUrl;
+          v.className = "post-video";
+          card.appendChild(v);
+        } else {
+          const a = document.createElement("a");
+          a.href = p.fileUrl;
+          a.target = "_blank";
+          a.textContent = "Download attachment";
+          card.appendChild(a);
+        }
+      }
+
+      msgsEl.appendChild(card);
+    }
+
+    // ---------- Send ----------
+    sendBtn.addEventListener("click", async () => {
+      errEl.textContent = "";
+      try {
+        if (!activeGroup) throw new Error("Open a group first.");
+        // optional file
+        let fileUrl = "", fileType = "";
+        const f = fileEl.files?.[0];
+        if (f) {
+          fileType = f.type || "";
+          const key = `group_uploads/${activeGroup.id}/${me.uid}_${Date.now()}_${f.name}`;
+          const r = ref(storage, key);
+          await uploadBytes(r, f);
+          fileUrl = await getDownloadURL(r);
+          fileEl.value = "";
+        }
+
+        await addDoc(collection(db, "groupMessages"), {
+          groupId: activeGroup.id,
+          from: me.email,                   // if you prefer uid, change here & in rules
+          text: msgEl.value || "",
+          fileUrl,
+          fileType,
+          createdAt: serverTimestamp(),
+        });
+        msgEl.value = "";
+
+        // bump group lastAt for ordering
+        await updateDoc(doc(db, "groups", activeGroup.id), {
+          lastAt: serverTimestamp(),
+        });
+      } catch (e) {
+        showError(e);
+        alert("Missing or insufficient permissions.");
+      }
+    });
+
+    function showError(e) {
+      console.error(e);
+      errEl.textContent = e.message || String(e);
+    }
+  </script>
+
+  <style>
+    /* a touch more breathing room for the top nav on this page */
+    .nav a { margin: 0 10px; }
+    .list { gap: 10px; }
+    .card { gap: 6px; }
+  </style>
+</body>
+</html>

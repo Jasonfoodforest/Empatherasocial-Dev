@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Feed • EmpathEra</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body data-active="feed">
+  <main>
+    <h1>Welcome to the Feed</h1>
+
+    <section class="panel">
+      <textarea id="postText" rows="4" placeholder="What's on your mind?"></textarea>
+      <div class="row">
+        <input type="file" id="postFile" accept="image/*,video/*" />
+        <button id="postBtn">Post</button>
+      </div>
+      <div id="err" class="err"></div>
+    </section>
+
+    <section id="feedList"></section>
+  </main>
+
+  <!-- tabs / header -->
+  <script type="module" src="./tabs.js"></script>
+  <!-- feed logic -->
+  <script type="module" src="./feed.js"></script>
+</body>
+</html>

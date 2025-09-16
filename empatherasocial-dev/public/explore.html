@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Explore • EmpathEra</title>
+  <style>
+    main{max-width:980px;margin:10px auto;padding:0 18px}
+    .panel{background:#1a1d22;border-radius:14px;padding:14px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:14px}
+    .card{background:#1a1d22;border-radius:12px;padding:12px}
+    .chiprow{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+    .chip{padding:6px 10px;border-radius:999px;background:#0f1217;border:1px solid #2a2f39;color:#cfe6ff}
+  </style>
+</head>
+<body data-active="explore">
+  <main>
+    <h1>Explore</h1>
+
+    <section class="panel">
+      <p><strong>Under construction — coming soon.</strong></p>
+      <p><strong>Our mission for Explore:</strong> surface people, posts, and projects that grow empathy and agency. Not clickbait—signal. You’ll see topic trails, calm discovery, and value-aligned recommendations shaped by our community’s actions, not outrage.</p>
+      <div class="chiprow">
+        <span class="chip">Mindful living</span>
+        <span class="chip">Regenerative food</span>
+        <span class="chip">Emotional health</span>
+        <span class="chip">Creator tools</span>
+        <span class="chip">Kind tech</span>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card"><h3>People to follow</h3><p>Curated profiles that share practical compassion.</p></article>
+      <article class="card"><h3>Topics</h3><p>Threaded collections to browse at your pace.</p></article>
+      <article class="card"><h3>Local threads</h3><p>Neighborhood efforts, mutual aid, meetups.</p></article>
+      <article class="card"><h3>Starter packs</h3><p>Short reading lists and mini-workflows.</p></article>
+    </section>
+  </main>
+
+  <script type="module" src="./tabs.js"></script>
+  <script type="module">
+    import { auth } from "./firebase-config.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+    onAuthStateChanged(auth, u => { if (!u) location.href = "./index.html"; });
+  </script>
+</body>
+</html>
+

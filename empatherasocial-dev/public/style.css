@@ -1,0 +1,32 @@
+:root { color-scheme: dark; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+body { margin: 0; background:#0d0f12; color:#e8eaed; }
+a { color:#8bd8ff; text-decoration:none; }
+a:hover { text-decoration:underline; }
+
+/* top nav */
+.navbar {
+  background:#005f56;
+  display:flex; align-items:center; gap:18px;
+  padding:10px 14px; position:sticky; top:0; z-index:10;
+}
+.navbar .brand { margin-right:12px; font-weight:700; }
+.navbar .spacer { flex:1; }
+.navbar .user { opacity:.9; }
+
+.container { max-width:920px; margin:20px auto; padding:0 16px; }
+.card { background:#151a1f; border:1px solid #2a2f36; border-radius:12px; padding:14px; }
+
+input, button, textarea {
+  background:#12161b; color:#e8eaed; border:1px solid #2a2f36; border-radius:8px;
+  padding:8px 10px; outline:none;
+}
+button { background:#2d7; color:#031; font-weight:600; cursor:pointer; }
+button:disabled { opacity:.5; cursor:not-allowed; }
+
+.inline { display:flex; gap:8px; align-items:center; }
+.row { display:flex; gap:12px; }
+.col { flex:1; }
+
+.media { max-width:100%; border-radius:10px; display:block; margin-top:8px; }
+.msg-me { text-align:right; opacity:.9; }
+.msg-other { opacity:.85; }
