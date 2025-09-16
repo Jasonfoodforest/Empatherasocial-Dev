@@ -1,22 +1,19 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { getStorage } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+// firebase-config.js
 
-// Firebase configuration for EmpathEraSocial-Dev
+// Your Firebase config object from Firebase Console
 const firebaseConfig = {
   apiKey: "AIzaSyCegX-9F8lvrBr85U8-9kva0_P8o2Ik81A",
   authDomain: "empatherasocial-dev.firebaseapp.com",
-  databaseURL: "https://empatherasocial-dev-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "empatherasocial-dev",
-  storageBucket: "empatherasocial-dev.appspot.com",
+  storageBucket: "empatherasocial-dev.firebasestorage.app",
   messagingSenderId: "890072969016",
-  appId: "1:890072969016:web:27640b219e0564331c5bcd",
-  measurementId: "G-TDKPK1GP8W"
+  appId: "1:890072969016:web:27640b219e0564331c5bcd"
 };
 
-// Initialize Firebase
-export const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-export const storage = getStorage(app);
+// Initialize Firebase only once
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+
+// Make auth accessible everywhere
+window.auth = firebase.auth();
