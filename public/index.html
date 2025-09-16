@@ -77,20 +77,15 @@
     <footer>© <span id="yr"></span> EmpathEra</footer>
   </div>
 
-  <!-- Firebase + auth code -->
-  <script type="module">
-    import app, { auth } from "./firebase-config.js";
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js"></script>
 
-    import {
-      onAuthStateChanged,
-      signInWithEmailAndPassword,
-      createUserWithEmailAndPassword,
-      GoogleAuthProvider,
-      FacebookAuthProvider,
-      signInWithPopup,
-    } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+  <!-- Your config file (must set window.app, window.auth) -->
+  <script src="./firebase-config.js"></script>
 
-    // Elements
+  <!-- Auth logic -->
+  <script>
     const el = (id)=>document.getElementById(id);
     const inEmail   = el("inEmail");
     const inPass    = el("inPass");
@@ -108,65 +103,37 @@
       setTimeout(()=>errEl.textContent="", 6000);
     }
 
-    function goHome(){
-      // after login, head to feed
-      window.location.replace("./feed.html");
-    }
+    function goHome(){ window.location.replace("./feed.html"); }
 
-    onAuthStateChanged(auth, (u) => {
-      if (u) goHome();
-    });
+    firebase.auth().onAuthStateChanged((u) => { if (u) goHome(); });
 
-    btnSignIn.addEventListener("click", async () => {
+    btnSignIn.onclick = async () => {
       try {
-        const email = (inEmail.value||"").trim();
-        const pass  = inPass.value||"";
-        if(!email || !pass) throw new Error("Please enter email and password.");
-        await signInWithEmailAndPassword(auth, email, pass);
+        await firebase.auth().signInWithEmailAndPassword(inEmail.value, inPass.value);
         goHome();
-      } catch (e){ showErr(e); }
-    });
+      } catch(e){ showErr(e); }
+    };
 
-    btnCreate.addEventListener("click", async () => {
+    btnCreate.onclick = async () => {
       try {
-        const email = (inEmail.value||"").trim();
-        const pass  = inPass.value||"";
-        if(!email || !pass) throw new Error("Please enter email and password.");
-        await createUserWithEmailAndPassword(auth, email, pass);
+        await firebase.auth().createUserWithEmailAndPassword(inEmail.value, inPass.value);
         goHome();
-      } catch (e){ showErr(e); }
-    });
+      } catch(e){ showErr(e); }
+    };
 
-    // Google
-    btnGoogle.addEventListener("click", async () => {
+    btnGoogle.onclick = async () => {
       try {
-        const provider = new GoogleAuthProvider();
-        await signInWithPopup(auth, provider);
+        await firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider());
         goHome();
-      } catch (e){ showErr(e); }
-    });
+      } catch(e){ showErr(e); }
+    };
 
-    // Facebook
-    btnFacebook.addEventListener("click", async () => {
+    btnFacebook.onclick = async () => {
       try {
-        const provider = new FacebookAuthProvider();
-        // Optional: request email scope explicitly
-        provider.addScope("email");
-        await signInWithPopup(auth, provider);
+        await firebase.auth().signInWithPopup(new firebase.auth.FacebookAuthProvider());
         goHome();
-      } catch (e){ showErr(e); }
-    });
+      } catch(e){ showErr(e); }
+    };
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
