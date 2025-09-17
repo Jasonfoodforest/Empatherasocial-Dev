@@ -80,60 +80,13 @@
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-storage.js"></script>
 
-  <!-- Your config file (must set window.app, window.auth) -->
-  <script src="./firebase-config.js"></script>
+  <!-- Your Firebase config -->
+  <script src="firebase-config.js"></script>
 
-  <!-- Auth logic -->
-  <script>
-    const el = (id)=>document.getElementById(id);
-    const inEmail   = el("inEmail");
-    const inPass    = el("inPass");
-    const btnSignIn = el("btnSignIn");
-    const btnCreate = el("btnCreate");
-    const btnGoogle = el("btnGoogle");
-    const btnFacebook = el("btnFacebook");
-    const errEl     = el("err");
-    el("yr").textContent = new Date().getFullYear();
-
-    function showErr(e){
-      console.error(e);
-      const msg = e?.message || String(e) || "Something went wrong.";
-      errEl.textContent = msg.replace("Firebase: ", "");
-      setTimeout(()=>errEl.textContent="", 6000);
-    }
-
-    function goHome(){ window.location.replace("./feed.html"); }
-
-    firebase.auth().onAuthStateChanged((u) => { if (u) goHome(); });
-
-    btnSignIn.onclick = async () => {
-      try {
-        await firebase.auth().signInWithEmailAndPassword(inEmail.value, inPass.value);
-        goHome();
-      } catch(e){ showErr(e); }
-    };
-
-    btnCreate.onclick = async () => {
-      try {
-        await firebase.auth().createUserWithEmailAndPassword(inEmail.value, inPass.value);
-        goHome();
-      } catch(e){ showErr(e); }
-    };
-
-    btnGoogle.onclick = async () => {
-      try {
-        await firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider());
-        goHome();
-      } catch(e){ showErr(e); }
-    };
-
-    btnFacebook.onclick = async () => {
-      try {
-        await firebase.auth().signInWithPopup(new firebase.auth.FacebookAuthProvider());
-        goHome();
-      } catch(e){ showErr(e); }
-    };
-  </script>
+  <!-- Your custom auth logic -->
+  <script src="auth.js"></script>
 </body>
 </html>
