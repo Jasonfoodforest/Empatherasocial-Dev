@@ -15,5 +15,7 @@ if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 
-// Make auth accessible everywhere
+// Expose commonly used services
 window.auth = firebase.auth();
+window.db = firebase.firestore();
+window.storage = firebase.storage();

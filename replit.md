@@ -15,11 +15,13 @@ EmpathEra Social is a Firebase-based social media web application that allows us
 - **Database**: Firebase Firestore
 - **Authentication**: Firebase Auth with multiple providers
 
-## Recent Changes (September 16, 2025)
+## Recent Changes (September 17, 2025)
 - Migrated from Python HTTP server to Node.js Express server
 - Updated server.js to serve static files from `/public` directory on port 5000
 - Fixed authentication issues by updating index.html with improved Firebase integration
-- Updated firebase-config.js to use Firebase compat library for compatibility
+- Moved firebase-config.js to public/ directory and enhanced with auth, db, storage services
+- Updated index.html to use Firebase compat libraries for proper global object access
+- Created auth.js with clean authentication logic in separate file
 - Server now uses `npm start` command with proper workflow configuration
 - Authentication now supports email/password, Google, and Facebook sign-ins
 
