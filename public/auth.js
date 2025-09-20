@@ -1,66 +1,58 @@
-// Auth logic for EmpathEra Social
-const el = (id) => document.getElementById(id);
-const inEmail = el("inEmail");
-const inPass = el("inPass");
-const btnSignIn = el("btnSignIn");
-const btnCreate = el("btnCreate");
-const btnGoogle = el("btnGoogle");
-const btnFacebook = el("btnFacebook");
-const errEl = el("err");
-el("yr").textContent = new Date().getFullYear();
+// auth.js
+import { auth } from "./firebase-config.js";
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signInAnonymously,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
 
-function showErr(e) {
-  console.error(e);
-  const msg = e?.message || String(e) || "Something went wrong.";
-  errEl.textContent = msg.replace("Firebase: ", "");
-  setTimeout(() => errEl.textContent = "", 6000);
-}
+const emailEl = document.getElementById("inEmail");
+const passEl = document.getElementById("inPass");
+const errEl = document.getElementById("err");
 
-function goHome() {
-  window.location.replace("./feed.html");
-}
-
-// Monitor auth state changes
-firebase.auth().onAuthStateChanged((u) => {
-  if (u) goHome();
-});
-
-// Sign in with email/password
-btnSignIn.onclick = async () => {
+document.getElementById("btnSignIn").onclick = async () => {
+  errEl.textContent = "";
   try {
-    await firebase.auth().signInWithEmailAndPassword(inEmail.value, inPass.value);
-    goHome();
+    await signInWithEmailAndPassword(auth, emailEl.value, passEl.value);
+    location.href = "./feed.html";
   } catch (e) {
-    showErr(e);
+    console.error(e);
+    errEl.textContent = e.message || "Sign in failed";
   }
 };
 
-// Create new account
-btnCreate.onclick = async () => {
+document.getElementById("btnCreate").onclick = async () => {
+  errEl.textContent = "";
   try {
-    await firebase.auth().createUserWithEmailAndPassword(inEmail.value, inPass.value);
-    goHome();
+    await createUserWithEmailAndPassword(auth, emailEl.value, passEl.value);
+    location.href = "./feed.html";
   } catch (e) {
-    showErr(e);
+    console.error(e);
+    errEl.textContent = e.message || "Account creation failed";
   }
 };
 
-// Google sign-in
-btnGoogle.onclick = async () => {
+document.getElementById("btnAnon").onclick = async () => {
+  errEl.textContent = "";
   try {
-    await firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider());
-    goHome();
+    await signInAnonymously(auth);
+    location.href = "./feed.html";
   } catch (e) {
-    showErr(e);
+    console.error(e);
+    errEl.textContent = e.message || "Guest sign-in failed";
   }
 };
 
-// Facebook sign-in
-btnFacebook.onclick = async () => {
+document.getElementById("btnGoogle").onclick = async () => {
+  errEl.textContent = "";
   try {
-    await firebase.auth().signInWithPopup(new firebase.auth.FacebookAuthProvider());
-    goHome();
+    const provider = new GoogleAuthProvider();
+    await signInWithPopup(auth, provider);
+    location.href = "./feed.html";
   } catch (e) {
-    showErr(e);
+    console.error(e);
+    errEl.textContent = e.message || "Google sign-in failed";
   }
 };

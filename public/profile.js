@@ -1,20 +1,26 @@
-// profile.js
-import app, { auth, db, storage } from "./firebase-config.js";
+import { auth, db, storage } from "./firebase-config.js";
 import {
-  onAuthStateChanged, updateProfile
+  onAuthStateChanged,
+  updateProfile,
+  signOut,
 } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
 import {
-  doc, getDoc, setDoc, serverTimestamp
+  doc,
+  getDoc,
+  setDoc,
+  serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
 import {
-  ref as sRef, uploadBytes, getDownloadURL
+  ref as sRef,
+  uploadBytes,
+  getDownloadURL,
 } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-storage.js";
 
 const ui = {
-  email: document.getElementById("email"),
-  displayName: document.getElementById("displayName"),
-  avatar: document.getElementById("avatar"),
-  file: document.getElementById("file"),
+  email: document.getElementById("profileEmail"),
+  displayName: document.getElementById("profileName"),
+  avatar: document.getElementById("profilePic"),
+  file: document.getElementById("picFile"),
   save: document.getElementById("saveBtn"),
   logout: document.getElementById("logoutBtn"),
   err: document.getElementById("err"),
@@ -23,14 +29,17 @@ const ui = {
 let me = null;
 
 onAuthStateChanged(auth, async (u) => {
-  if (!u) { location.href = "./index.html"; return; }
+  if (!u) {
+    location.href = "./index.html";
+    return;
+  }
   me = u;
 
-  ui.email.value = u.email || "";
-  ui.displayName.value = u.displayName || (u.email ? u.email.split("@")[0] : "User");
+  ui.email.textContent = u.email || "";
+  ui.displayName.value =
+    u.displayName || (u.email ? u.email.split("@")[0] : "User");
   if (u.photoURL) ui.avatar.src = u.photoURL;
 
-  // Ensure a /users/{uid} doc exists and load photo/name if present
   const uref = doc(db, "users", u.uid);
   const snap = await getDoc(uref);
   if (snap.exists()) {
@@ -38,12 +47,16 @@ onAuthStateChanged(auth, async (u) => {
     if (d.displayName && !u.displayName) ui.displayName.value = d.displayName;
     if (d.photoURL) ui.avatar.src = d.photoURL;
   } else {
-    await setDoc(uref, {
-      email: u.email || "",
-      displayName: ui.displayName.value,
-      photoURL: u.photoURL || "",
-      updatedAt: serverTimestamp()
-    }, { merge: true });
+    await setDoc(
+      uref,
+      {
+        email: u.email || "",
+        displayName: ui.displayName.value,
+        photoURL: u.photoURL || "",
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true },
+    );
   }
 });
 
@@ -52,7 +65,6 @@ ui.save.onclick = async () => {
   if (!me) return;
 
   try {
-    // 1) Upload avatar if provided
     let photoURL = me.photoURL || "";
     const f = ui.file.files?.[0];
     if (f) {
@@ -63,17 +75,21 @@ ui.save.onclick = async () => {
       ui.avatar.src = photoURL;
     }
 
-    // 2) Update Auth profile (name/photo)
-    const newName = (ui.displayName.value || "").trim() || (me.email?.split("@")[0] ?? "User");
+    const newName =
+      (ui.displayName.value || "").trim() ||
+      (me.email?.split("@")[0] ?? "User");
     await updateProfile(me, { displayName: newName, photoURL });
 
-    // 3) Update Firestore /users/{uid}
-    await setDoc(doc(db, "users", me.uid), {
-      email: me.email || "",
-      displayName: newName,
-      photoURL,
-      updatedAt: serverTimestamp()
-    }, { merge: true });
+    await setDoc(
+      doc(db, "users", me.uid),
+      {
+        email: me.email || "",
+        displayName: newName,
+        photoURL,
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true },
+    );
 
     alert("Saved!");
   } catch (e) {
@@ -82,3 +98,12 @@ ui.save.onclick = async () => {
   }
 };
 
+ui.logout.onclick = async () => {
+  try {
+    await signOut(auth);
+    location.href = "./index.html";
+  } catch (e) {
+    console.error("Logout failed:", e);
+    ui.err.textContent = e.message || "Logout failed";
+  }
+};

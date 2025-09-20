@@ -1,30 +1,104 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Feed • EmpathEra</title>
-  <link rel="stylesheet" href="./style.css">
-</head>
-<body data-active="feed">
-  <main>
-    <h1>Welcome to the Feed</h1>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Feed • EmpathEra</title>
+    <link rel="stylesheet" href="./style.css" />
+    <style>
+      main {
+        max-width: 700px; /* narrower feed */
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .panel {
+        background: #1a1d22;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 18px;
+      }
+      textarea {
+        width: 100%;
+        resize: vertical;
+        border-radius: 10px;
+        border: 1px solid #2a2f39;
+        background: #0f1217;
+        color: #e5e7eb;
+        padding: 10px;
+        margin-bottom: 10px;
+      }
+      .row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      #postFile {
+        flex: 1;
+      }
+      #postBtn {
+        background: #18c964;
+        padding: 10px 16px;
+        border-radius: 10px;
+        cursor: pointer;
+      }
+      article.card {
+        background: #101317;
+        border: 1px solid #222831;
+        border-radius: 12px;
+        padding: 14px;
+        margin-bottom: 14px;
+      }
+      .meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 14px;
+        margin-bottom: 6px;
+        color: #9aa3af;
+      }
+      .text {
+        margin-bottom: 8px;
+        font-size: 15px;
+      }
+      .media {
+        max-width: 100%;
+        border-radius: 8px;
+        margin-top: 6px;
+      }
+      .btn-del {
+        background: #f97316; /* orange */
+        color: #fff;
+        border: none;
+        padding: 4px 10px;
+        font-size: 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        margin-left: 10px;
+      }
+    </style>
+  </head>
+  <body data-active="feed">
+    <main>
+      <h1>Welcome to the Feed</h1>
 
-    <section class="panel">
-      <textarea id="postText" rows="4" placeholder="What's on your mind?"></textarea>
-      <div class="row">
-        <input type="file" id="postFile" accept="image/*,video/*" />
-        <button id="postBtn">Post</button>
-      </div>
-      <div id="err" class="err"></div>
-    </section>
+      <section class="panel">
+        <textarea
+          id="postText"
+          rows="3"
+          placeholder="What's on your mind?"
+        ></textarea>
+        <div class="row">
+          <input type="file" id="postFile" accept="image/*,video/*" />
+          <button id="postBtn">Post</button>
+        </div>
+        <div id="err" class="err"></div>
+      </section>
 
-    <section id="feedList"></section>
-  </main>
+      <section id="feedList"></section>
+    </main>
 
-  <!-- tabs / header -->
-  <script type="module" src="./tabs.js"></script>
-  <!-- feed logic -->
-  <script type="module" src="./feed.js"></script>
-</body>
+    <!-- Scripts -->
+    <script type="module" src="./tabs.js"></script>
+    <script type="module" src="./feed.js"></script>
+  </body>
 </html>
