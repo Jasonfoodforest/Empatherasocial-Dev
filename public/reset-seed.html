@@ -1,0 +1,86 @@
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+  import {
+    getFirestore,
+    collection,
+    getDocs,
+    deleteDoc,
+    doc,
+    setDoc,
+    addDoc,
+    serverTimestamp,
+  } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+  import {
+    getAuth,
+    signInAnonymously,
+  } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCegX-9F8lvrBr85U8-9kva0_P8o2Ik81A",
+    authDomain: "empatherasocial-dev.firebaseapp.com",
+    projectId: "empatherasocial-dev",
+    storageBucket: "empatherasocial-dev.firebasestorage.app",
+    messagingSenderId: "890072969016",
+    appId: "1:890072969016:web:27640b219e0564331c5bcd",
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
+  async function clearCollection(path) {
+    const snap = await getDocs(collection(db, path));
+    for (const d of snap.docs) {
+      await deleteDoc(doc(db, path, d.id));
+      console.log(`🗑️ Deleted ${path}/${d.id}`);
+    }
+  }
+
+  async function resetAndSeed() {
+    console.log("🌱 Resetting old data…");
+
+    await clearCollection("chats");
+    await clearCollection("groups");
+
+    console.log("✨ Seeding new data…");
+
+    const users = [
+      "jasonfoodforest714@gmail.com",
+      "helper1@empatherasocial.com",
+      "helper2@empatherasocial.com",
+    ];
+
+    const chat1 = [users[0], users[1]].sort().join("_");
+    await setDoc(doc(db, "chats", chat1), {
+      participants: [users[0], users[1]],
+      lastAt: serverTimestamp(),
+      lastMsg: "New seeded chat Jason ↔ Helper1",
+    });
+    await addDoc(collection(db, "messages", chat1, "chats"), {
+      text: "Hi Helper1 👋",
+      senderEmail: users[0],
+      createdAt: serverTimestamp(),
+    });
+
+    const groupId = "seed-group-1";
+    await setDoc(doc(db, "groups", groupId), {
+      name: "Seed Test Group",
+      members: users,
+      createdAt: serverTimestamp(),
+    });
+    await addDoc(collection(db, "groupMessages", groupId, "items"), {
+      text: "Welcome to the group 🎉",
+      senderEmail: users[0],
+      createdAt: serverTimestamp(),
+    });
+
+    console.log("✅ Reset + Seed complete! Check Firestore.");
+  }
+
+  signInAnonymously(auth)
+    .then(() => {
+      console.log("🔑 Signed in anonymously, running seed…");
+      resetAndSeed();
+    })
+    .catch((err) => console.error("Auth error:", err));
+</script>
