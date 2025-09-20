@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+  <head><title>Seed Firestore</title></head>
+  <body>
+    <h1>Seeding Firestore… check console</h1>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+      import { getFirestore, doc, setDoc, collection, addDoc, serverTimestamp } 
+        from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyCegX-9F8lvrBr85U8-9kva0_P8o2Ik81A",
+        authDomain: "empatherasocial-dev.firebaseapp.com",
+        projectId: "empatherasocial-dev",
+        storageBucket: "empatherasocial-dev.firebasestorage.app",
+        messagingSenderId: "890072969016",
+        appId: "1:890072969016:web:27640b219e0564331c5bcd"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      const users = [
+        "jasonfoodforest714@gmail.com",
+        "helper1@empatherasocial.com",
+        "helper2@empatherasocial.com"
+      ];
+
+      async function seed() {
+        const [a, b] = users;
+        const rk = [a, b].sort().join("_");
+
+        // Direct chat
+        await setDoc(doc(db, "chats", rk), {
+          participants: [a, b],
+          lastAt: serverTimestamp(),
+          lastMsg: "First seeded chat!"
+        }, { merge: true });
+
+        await addDoc(collection(db, "messages", rk, "chats"), {
+          text: "Hello this is a test 🚀",
+          senderEmail: a,
+          createdAt: serverTimestamp()
+        });
+
+        // Group
+        const groupId = "test-group-1";
+        await setDoc(doc(db, "groups", groupId), {
+          name: "Test Group",
+          members: users,
+          createdAt: serverTimestamp()
+        });
+
+        await addDoc(collection(db, "groupMessages", groupId, "items"), {
+          text: "Hello from group 👋",
+          senderEmail: b,
+          createdAt: serverTimestamp()
+        });
+
+        console.log("✅ Seed done. Check Firestore!");
+      }
+
+      seed();
+    </script>
+  </body>
+</html>
