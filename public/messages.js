@@ -1,153 +1,189 @@
-import { auth, db } from "./firebase-config.js";
+import { auth, db, storage } from "./firebase-config.js";
 import {
-  onAuthStateChanged,
   signOut,
+  onAuthStateChanged,
 } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
 import {
   collection,
-  query,
-  where,
-  onSnapshot,
-  orderBy,
   addDoc,
-  serverTimestamp,
+  setDoc,
   doc,
+  onSnapshot,
+  query,
+  orderBy,
+  serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-storage.js";
 
-// UI elements
-const chatsEl = document.getElementById("chatsList");
-const groupsEl = document.getElementById("groupsList");
-const chatWithEl = document.getElementById("chatWith");
-const msgListEl = document.getElementById("msgList");
-const msgInput = document.getElementById("msgInput");
+let currentUser = null;
+let activeChat = null;
+let activeChatType = null; // "direct" | "group"
+
+// DOM elements
+const logoutBtn = document.getElementById("logoutBtn");
+const userEmailEl = document.getElementById("userEmail");
+const newChatEmail = document.getElementById("newChatEmail");
+const startChatBtn = document.getElementById("startChatBtn");
+const chatList = document.getElementById("chatList");
+const groupList = document.getElementById("groupList");
+const chatHeader = document.getElementById("chatHeader");
+const messagesEl = document.getElementById("messages");
+const messageInput = document.getElementById("messageInput");
+const fileInput = document.getElementById("fileInput");
 const sendBtn = document.getElementById("sendBtn");
-const attachBtn = document.getElementById("attachBtn");
 
-let currentChatId = null;
-let currentChatType = null; // "chat" or "group"
-let me = null;
-
-// ============================
-// AUTH
-// ============================
-onAuthStateChanged(auth, (user) => {
-  if (!user) {
+// 🔹 Auth state
+onAuthStateChanged(auth, (u) => {
+  if (!u) {
     location.href = "./index.html";
     return;
   }
-  me = user;
-  loadChats(user);
-  loadGroups(user);
+  currentUser = u;
+  userEmailEl.textContent = u.email || "Anonymous";
+  loadChats();
+  loadGroups();
 });
 
-function loadChats(user) {
-  const q = query(
-    collection(db, "chats"),
-    where("participants", "array-contains", user.email), // ✅ use email
-  );
+// 🔹 Logout
+logoutBtn.onclick = () => {
+  signOut(auth).then(() => (location.href = "./index.html"));
+};
 
-  onSnapshot(q, (snapshot) => {
-    chatsEl.innerHTML = "";
-    snapshot.forEach((doc) => {
-      const chat = doc.data();
-      const div = document.createElement("div");
-      div.textContent = chat.lastMsg || "Direct Chat"; // show last message
-      div.onclick = () => openChat(doc.id, "chat");
-      chatsEl.appendChild(div);
+// 🔹 Load chats
+function loadChats() {
+  onSnapshot(collection(db, "chats"), (snap) => {
+    chatList.innerHTML = "";
+    snap.forEach((docSnap) => {
+      const chat = docSnap.data();
+      if (chat.participants.includes(currentUser.email)) {
+        const btn = document.createElement("button");
+        btn.textContent = chat.lastMsg || "(no messages)";
+        btn.style.display = "block";
+        btn.style.width = "100%";
+        btn.style.margin = "4px 0";
+        btn.onclick = () =>
+          openChat(docSnap.id, "direct", chat.participants.join(", "));
+        chatList.appendChild(btn);
+      }
     });
   });
 }
 
-function loadGroups(user) {
-  const q = query(
-    collection(db, "groups"),
-    where("members", "array-contains", user.email), // ✅ use email
-  );
-
-  onSnapshot(q, (snapshot) => {
-    groupsEl.innerHTML = "";
-    snapshot.forEach((doc) => {
-      const group = doc.data();
-      const div = document.createElement("div");
-      div.textContent = group.name || "Group Chat";
-      div.onclick = () => openChat(doc.id, "group");
-      groupsEl.appendChild(div);
+// 🔹 Load groups
+function loadGroups() {
+  onSnapshot(collection(db, "groups"), (snap) => {
+    groupList.innerHTML = "";
+    snap.forEach((docSnap) => {
+      const g = docSnap.data();
+      if (g.members.includes(currentUser.email)) {
+        const btn = document.createElement("button");
+        btn.textContent = g.name + " → " + (g.lastMsg || "");
+        btn.style.display = "block";
+        btn.style.width = "100%";
+        btn.style.margin = "4px 0";
+        btn.onclick = () => openChat(docSnap.id, "group", g.name);
+        groupList.appendChild(btn);
+      }
     });
   });
 }
 
-// ============================
-// OPEN CHAT OR GROUP
-// ============================
-function openChat(chatId, type) {
-  currentChatId = chatId;
-  currentChatType = type;
-  msgListEl.innerHTML = "";
+// 🔹 Open chat or group
+function openChat(id, type, label) {
+  activeChat = id;
+  activeChatType = type;
+  chatHeader.textContent = label;
+  messagesEl.innerHTML = "";
 
-  if (type === "chat") {
-    chatWithEl.textContent = "Direct Chat";
+  let refCol =
+    type === "direct"
+      ? collection(db, "chats", id, "messages")
+      : collection(db, "groups", id, "messages");
 
-    const msgCol = collection(db, "chats", chatId, "messages");
-    const q = query(msgCol, orderBy("createdAt", "asc"));
-    onSnapshot(q, (snapshot) => {
-      msgListEl.innerHTML = "";
-      snapshot.forEach((docSnap) => {
-        const msg = docSnap.data();
-        const div = document.createElement("div");
-        div.textContent = `${msg.senderEmail || "Unknown"}: ${msg.text}`;
-        msgListEl.appendChild(div);
-      });
+  const q = query(refCol, orderBy("createdAt", "asc"));
+  onSnapshot(q, (snap) => {
+    messagesEl.innerHTML = "";
+    snap.forEach((docSnap) => {
+      const m = docSnap.data();
+      const div = document.createElement("div");
+      div.style.marginBottom = "6px";
+      let content = `<strong>${m.senderEmail}</strong> (${m.createdAt?.toDate().toLocaleTimeString()}): `;
+      if (m.text) content += m.text;
+      if (m.fileUrl) {
+        if (m.fileUrl.match(/\.(jpeg|jpg|png|gif)$/i)) {
+          content += `<br><img src="${m.fileUrl}" style="max-width:200px; border-radius:6px;">`;
+        } else {
+          content += `<br><a href="${m.fileUrl}" target="_blank">📎 File</a>`;
+        }
+      }
+      div.innerHTML = content;
+      messagesEl.appendChild(div);
     });
-  } else if (type === "group") {
-    chatWithEl.textContent = "Group Chat";
-
-    const msgCol = collection(db, "groupMessages", chatId, "items");
-    const q = query(msgCol, orderBy("createdAt", "asc"));
-    onSnapshot(q, (snapshot) => {
-      msgListEl.innerHTML = "";
-      snapshot.forEach((docSnap) => {
-        const msg = docSnap.data();
-        const div = document.createElement("div");
-        div.textContent = `${msg.senderEmail || "Unknown"}: ${msg.text}`;
-        msgListEl.appendChild(div);
-      });
-    });
-  }
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  });
 }
 
-// ============================
-// SEND MESSAGE
-// ============================
+// 🔹 Send message
 async function sendMessage() {
-  if (!currentChatId || !msgInput.value.trim()) return;
+  if (!activeChat) return;
+  const text = messageInput.value.trim();
+  const file = fileInput.files[0];
 
-  const text = msgInput.value.trim();
-
-  if (currentChatType === "chat") {
-    await addDoc(collection(db, "chats", currentChatId, "messages"), {
-      text,
-      senderEmail: me.email,
-      createdAt: serverTimestamp(),
-    });
-  } else if (currentChatType === "group") {
-    await addDoc(collection(db, "groupMessages", currentChatId, "items"), {
-      text,
-      senderEmail: me.email,
-      createdAt: serverTimestamp(),
-    });
+  let fileUrl = null;
+  if (file) {
+    const storageRef = ref(storage, `messages/${Date.now()}_${file.name}`);
+    await uploadBytes(storageRef, file);
+    fileUrl = await getDownloadURL(storageRef);
+    fileInput.value = "";
   }
 
-  msgInput.value = "";
+  const msg = {
+    senderEmail: currentUser.email,
+    text: text || null,
+    fileUrl: fileUrl || null,
+    createdAt: serverTimestamp(),
+  };
+
+  const refCol =
+    activeChatType === "direct"
+      ? collection(db, "chats", activeChat, "messages")
+      : collection(db, "groups", activeChat, "messages");
+
+  await addDoc(refCol, msg);
+  messageInput.value = "";
 }
 
-sendBtn.onclick = sendMessage;
-msgInput.addEventListener("keypress", (e) => {
-  if (e.key === "Enter") sendMessage();
-});
+// 🔹 Start new chat
+async function startChat() {
+  const email = newChatEmail.value.trim();
+  if (!email) return;
+  const chatId = [currentUser.email, email].sort().join("_");
 
-// ============================
-// LOGOUT
-// ============================
-document.getElementById("logoutBtn")?.addEventListener("click", () => {
-  signOut(auth);
+  const chatRef = doc(db, "chats", chatId);
+  await setDoc(
+    chatRef,
+    {
+      participants: [currentUser.email, email],
+      createdAt: serverTimestamp(),
+      lastAt: serverTimestamp(),
+      lastMsg: "New chat started",
+    },
+    { merge: true },
+  );
+
+  newChatEmail.value = "";
+}
+
+// 🔹 Listeners
+sendBtn.onclick = sendMessage;
+messageInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    sendMessage();
+  }
 });
+startChatBtn.onclick = startChat;

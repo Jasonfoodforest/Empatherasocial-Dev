@@ -1,18 +1,13 @@
 <!doctype html>
 <html>
   <head>
-    <meta charset="UTF-8" />
     <title>Reset + Seed Firestore</title>
   </head>
   <body>
-    <h1>Resetting and Seeding Firestore… check console (F12)</h1>
+    <h1>Resetting and Seeding Firestore... check console (F12)</h1>
 
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
-      import {
-        getAuth,
-        signInAnonymously,
-      } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
       import {
         getFirestore,
         collection,
@@ -20,74 +15,89 @@
         setDoc,
         addDoc,
         deleteDoc,
+        getDocs,
         serverTimestamp,
       } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+      import {
+        getAuth,
+        signInAnonymously,
+      } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
 
-      // 🔑 Firebase config
-      import { firebaseConfig } from "./firebase-config.js";
+      // 🔑 Your Firebase config
+      const firebaseConfig = {
+        apiKey: "AIzaSyCegX-9F8lvrBr8SU8-9kva0_P8o2Ik81A",
+        authDomain: "empatherasocial-dev.firebaseapp.com",
+        projectId: "empatherasocial-dev",
+        storageBucket: "empatherasocial-dev.firebasestorage.app",
+        messagingSenderId: "890072969016",
+        appId: "1:890072969016:web:27640b219e0564331c5bcd",
+      };
 
+      // Init
       const app = initializeApp(firebaseConfig);
-      const auth = getAuth(app);
       const db = getFirestore(app);
+      const auth = getAuth(app);
 
       const userA = "helper1@empatherasocial.com";
       const userB = "jasonfoodforest714@gmail.com";
 
-      async function seed() {
-        console.log("🌱 Seeding start…");
+      async function resetAndSeed() {
+        console.log("🌱 Reset + Seed starting...");
 
-        // --- CLEANUP old docs (optional)
-        try {
-          await deleteDoc(doc(db, "chats", `${userA}_${userB}`));
-        } catch (e) {
-          console.log("No old direct chat to delete");
-        }
-        try {
-          await deleteDoc(doc(db, "groups", "seed-group-1"));
-        } catch (e) {
-          console.log("No old group to delete");
+        // --- Clean old data ---
+        const collections = ["chats", "groups", "groupMessages"];
+        for (let c of collections) {
+          const snap = await getDocs(collection(db, c));
+          snap.forEach(async (d) => {
+            await deleteDoc(doc(db, c, d.id));
+            console.log("Deleted", c, d.id);
+          });
         }
 
-        // --- DIRECT CHAT
+        // --- Direct Chat + Messages ---
         const chatId = `${userA}_${userB}`;
-        await setDoc(doc(db, "chats", chatId), {
+        const chatRef = doc(db, "chats", chatId);
+        await setDoc(chatRef, {
           participants: [userA, userB],
           createdAt: serverTimestamp(),
           lastAt: serverTimestamp(),
-          lastMsg: "Hello from seed",
+          lastMsg: "Hello from seed!",
         });
 
-        await addDoc(collection(db, "chats", chatId, "messages"), {
-          text: "Hello from seed",
+        await addDoc(collection(chatRef, "messages"), {
           senderEmail: userA,
+          text: "Hello from seed!",
           createdAt: serverTimestamp(),
         });
 
-        console.log("✅ Direct chat + message created");
+        console.log("✅ Direct chat seeded");
 
-        // --- GROUP
+        // --- Group + Messages ---
         const groupId = "seed-group-1";
-        await setDoc(doc(db, "groups", groupId), {
+        const groupRef = doc(db, "groups", groupId);
+        await setDoc(groupRef, {
           name: "Seed Group",
           members: [userA, userB],
           createdAt: serverTimestamp(),
           lastAt: serverTimestamp(),
-          lastMsg: "Hello group from seed",
+          lastMsg: "Hello group from seed!",
         });
 
-        await addDoc(collection(db, "groupMessages", groupId, "items"), {
-          text: "Welcome to the group 🎉",
+        await addDoc(collection(db, `groupMessages/${groupId}/items`), {
           senderEmail: userB,
+          text: "Welcome to the group 🎉",
           createdAt: serverTimestamp(),
         });
 
-        console.log("✅ Group + group message created");
+        console.log("✅ Group seeded");
+
         console.log("🌱 Reset + Seed complete! Check Firestore.");
       }
 
+      // Run after anonymous login
       signInAnonymously(auth)
-        .then(() => seed())
-        .catch((e) => console.error("Auth failed", e));
+        .then(() => resetAndSeed())
+        .catch((err) => console.error("Auth failed", err));
     </script>
   </body>
 </html>

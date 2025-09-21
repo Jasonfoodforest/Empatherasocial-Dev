@@ -1,204 +1,141 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Messages • EmpathEra</title>
-    <style>
-      :root {
-        --bg: #0e0f12;
-        --panel: #1a1d22;
-        --muted: #9aa3af;
-        --text: #e5e7eb;
-        --accent: #18c964;
-        --chip: #0f141b;
-      }
-      html,
-      body {
-        margin: 0;
-        background: var(--bg);
-        color: var(--text);
-        font:
-          16px/1.45 system-ui,
-          -apple-system,
-          Segoe UI,
-          Roboto;
-      }
-      main {
-        max-width: 1100px;
-        margin: 18px auto;
-        padding: 0 18px;
-      }
-      h1 {
-        font-size: 34px;
-        margin: 12px 0 18px;
-      }
-      .cols {
-        display: grid;
-        grid-template-columns: 300px 1fr;
-        gap: 16px;
-      }
-      .panel {
-        background: var(--panel);
-        border-radius: 14px;
-        padding: 12px;
-      }
-      .pill {
-        width: 100%;
-        text-align: left;
-        padding: 10px 12px;
-        border-radius: 10px;
-        background: #12161c;
-        border: 1px solid #2a2f39;
-        color: #cbd5e1;
-        margin-bottom: 8px;
-        cursor: pointer;
-      }
-      .pill:hover {
-        background: #161b22;
-      }
-      .muted {
-        color: #94a3b8;
-      }
-      .roomTitle {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        color: #9fb0c3;
-      }
-      .msg {
-        padding: 10px 12px;
-        border-radius: 10px;
-        background: #10151b;
-        margin-bottom: 10px;
-        border: 1px solid #202734;
-      }
-      .meta {
-        font-size: 12px;
-        color: #8aa0b6;
-        margin-bottom: 6px;
-        display: flex;
-        gap: 8px;
-      }
-      .bubble {
-        white-space: pre-wrap;
-      }
-      .thumb {
-        max-width: 280px;
-        max-height: 220px;
-        border-radius: 8px;
-        display: block;
-        margin-top: 8px;
-      }
-      .vid {
-        max-width: 360px;
-        max-height: 260px;
-        border-radius: 8px;
-        display: block;
-        margin-top: 8px;
-      }
-      .row {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-      }
-      .input {
-        flex: 1;
-        width: 100%;
-        padding: 10px 12px;
-        border-radius: 10px;
-        border: 1px solid #2a2f39;
-        background: #0f1217;
-        color: var(--text);
-      }
-      .btn {
-        background: var(--accent);
-        color: #08110d;
-        border: none;
-        padding: 10px 14px;
-        border-radius: 10px;
-        cursor: pointer;
-      }
-      .btn-ghost {
-        background: #0f141b;
-        border: 1px solid #253043;
-        color: #cbd5e1;
-      }
-      .chips {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-      }
-      .chip {
-        background: var(--chip);
-        border: 1px solid #253043;
-        color: #cbd5e1;
-        padding: 6px 10px;
-        border-radius: 999px;
-        font-size: 12px;
-      }
-      #progress {
-        font-size: 12px;
-        color: #86efac;
-        margin-left: 8px;
-      }
-      #err {
-        color: #fca5a5;
-        margin-top: 6px;
-      }
-    </style>
+    <meta charset="UTF-8" />
+    <title>Messages · EmpathEra</title>
+    <link rel="stylesheet" href="style.css" />
   </head>
-  <body data-active="message">
-    <!-- Header / nav tabs -->
-    <script type="module" src="./tabs.js"></script>
-
-    <main>
-      <h1>Messages</h1>
-      <div class="cols">
-        <aside class="panel">
-          <h3 class="muted" style="margin-top: 0">Chats</h3>
-          <div id="chatList"></div>
-
-          <div class="chips" style="margin: 10px 0 4px">
-            <span class="chip">Direct</span>
-          </div>
-
-          <h3 class="muted" style="margin-top: 16px">Groups</h3>
-          <div id="groupList"></div>
-        </aside>
-
-        <section class="panel">
-          <div class="roomTitle">
-            <span>Chat with:</span>
-            <strong id="activeTitle">(none)</strong>
-            <span id="progress"></span>
-          </div>
-
-          <div id="messages" style="margin: 10px 0; min-height: 280px"></div>
-
-          <div class="row">
-            <input
-              id="messageInput"
-              class="input"
-              placeholder="Type a message..."
-            />
-            <input
-              id="fileInput"
-              type="file"
-              accept="image/*,video/*"
-              style="display: none"
-            />
-            <button id="attachBtn" class="btn-ghost" title="Attach image/video">
-              Attach
-            </button>
-            <button id="sendBtn" class="btn">Send</button>
-          </div>
-          <div id="err"></div>
-        </section>
+  <body>
+    <header
+      style="
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px;
+      "
+    >
+      <nav>
+        <a href="feed.html">Feed</a>
+        <a href="explore.html">Explore</a>
+        <a href="intelligence.html">Intelligence</a>
+        <a href="shopping.html">Shopping</a>
+        <a href="messages.html" style="color: limegreen; font-weight: bold"
+          >Message</a
+        >
+        <a href="group.html">Group</a>
+        <a href="ebooks.html">Ebooks</a>
+        <a href="profile.html">Profile</a>
+      </nav>
+      <div>
+        <span id="userEmail" style="margin-right: 10px"></span>
+        <button
+          id="logoutBtn"
+          style="
+            background: limegreen;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+          "
+        >
+          Logout
+        </button>
       </div>
+    </header>
+
+    <main style="display: flex; height: calc(100vh - 60px)">
+      <!-- Sidebar -->
+      <aside
+        style="
+          width: 25%;
+          border-right: 1px solid #444;
+          padding: 10px;
+          overflow-y: auto;
+        "
+      >
+        <h3>New Chat</h3>
+        <input
+          id="newChatEmail"
+          type="email"
+          placeholder="Enter email..."
+          style="
+            width: 95%;
+            margin-bottom: 6px;
+            padding: 6px;
+            border-radius: 4px;
+            border: 1px solid #444;
+          "
+        />
+        <button
+          id="startChatBtn"
+          style="
+            width: 95%;
+            padding: 8px;
+            background: limegreen;
+            border: none;
+            color: white;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+          "
+        >
+          Start Chat
+        </button>
+
+        <h3>Chats</h3>
+        <div id="chatList"></div>
+
+        <h3>Groups</h3>
+        <div id="groupList"></div>
+      </aside>
+
+      <!-- Chat box -->
+      <section style="flex: 1; display: flex; flex-direction: column">
+        <div id="chatHeader" style="padding: 10px; font-weight: bold">
+          (none)
+        </div>
+        <div
+          id="messages"
+          style="
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            border-top: 1px solid #444;
+            border-bottom: 1px solid #444;
+          "
+        ></div>
+        <div style="padding: 10px; display: flex; gap: 6px">
+          <input
+            id="messageInput"
+            type="text"
+            placeholder="Type a message..."
+            style="
+              flex: 1;
+              padding: 6px;
+              border-radius: 4px;
+              border: 1px solid #444;
+            "
+          />
+          <input id="fileInput" type="file" />
+          <button
+            id="sendBtn"
+            style="
+              padding: 10px 16px;
+              background: limegreen;
+              border: none;
+              color: white;
+              font-weight: bold;
+              border-radius: 6px;
+              cursor: pointer;
+            "
+          >
+            Send
+          </button>
+        </div>
+      </section>
     </main>
 
-    <!-- Scripts -->
     <script type="module" src="./message.js"></script>
   </body>
 </html>
