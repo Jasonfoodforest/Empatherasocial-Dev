@@ -1,86 +1,93 @@
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
-  import {
-    getFirestore,
-    collection,
-    getDocs,
-    deleteDoc,
-    doc,
-    setDoc,
-    addDoc,
-    serverTimestamp,
-  } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
-  import {
-    getAuth,
-    signInAnonymously,
-  } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Reset + Seed Firestore</title>
+  </head>
+  <body>
+    <h1>Resetting and Seeding Firestore… check console (F12)</h1>
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCegX-9F8lvrBr85U8-9kva0_P8o2Ik81A",
-    authDomain: "empatherasocial-dev.firebaseapp.com",
-    projectId: "empatherasocial-dev",
-    storageBucket: "empatherasocial-dev.firebasestorage.app",
-    messagingSenderId: "890072969016",
-    appId: "1:890072969016:web:27640b219e0564331c5bcd",
-  };
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+      import {
+        getAuth,
+        signInAnonymously,
+      } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+      import {
+        getFirestore,
+        collection,
+        doc,
+        setDoc,
+        addDoc,
+        deleteDoc,
+        serverTimestamp,
+      } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const auth = getAuth(app);
+      // 🔑 Firebase config
+      import { firebaseConfig } from "./firebase-config.js";
 
-  async function clearCollection(path) {
-    const snap = await getDocs(collection(db, path));
-    for (const d of snap.docs) {
-      await deleteDoc(doc(db, path, d.id));
-      console.log(`🗑️ Deleted ${path}/${d.id}`);
-    }
-  }
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
 
-  async function resetAndSeed() {
-    console.log("🌱 Resetting old data…");
+      const userA = "helper1@empatherasocial.com";
+      const userB = "jasonfoodforest714@gmail.com";
 
-    await clearCollection("chats");
-    await clearCollection("groups");
+      async function seed() {
+        console.log("🌱 Seeding start…");
 
-    console.log("✨ Seeding new data…");
+        // --- CLEANUP old docs (optional)
+        try {
+          await deleteDoc(doc(db, "chats", `${userA}_${userB}`));
+        } catch (e) {
+          console.log("No old direct chat to delete");
+        }
+        try {
+          await deleteDoc(doc(db, "groups", "seed-group-1"));
+        } catch (e) {
+          console.log("No old group to delete");
+        }
 
-    const users = [
-      "jasonfoodforest714@gmail.com",
-      "helper1@empatherasocial.com",
-      "helper2@empatherasocial.com",
-    ];
+        // --- DIRECT CHAT
+        const chatId = `${userA}_${userB}`;
+        await setDoc(doc(db, "chats", chatId), {
+          participants: [userA, userB],
+          createdAt: serverTimestamp(),
+          lastAt: serverTimestamp(),
+          lastMsg: "Hello from seed",
+        });
 
-    const chat1 = [users[0], users[1]].sort().join("_");
-    await setDoc(doc(db, "chats", chat1), {
-      participants: [users[0], users[1]],
-      lastAt: serverTimestamp(),
-      lastMsg: "New seeded chat Jason ↔ Helper1",
-    });
-    await addDoc(collection(db, "messages", chat1, "chats"), {
-      text: "Hi Helper1 👋",
-      senderEmail: users[0],
-      createdAt: serverTimestamp(),
-    });
+        await addDoc(collection(db, "chats", chatId, "messages"), {
+          text: "Hello from seed",
+          senderEmail: userA,
+          createdAt: serverTimestamp(),
+        });
 
-    const groupId = "seed-group-1";
-    await setDoc(doc(db, "groups", groupId), {
-      name: "Seed Test Group",
-      members: users,
-      createdAt: serverTimestamp(),
-    });
-    await addDoc(collection(db, "groupMessages", groupId, "items"), {
-      text: "Welcome to the group 🎉",
-      senderEmail: users[0],
-      createdAt: serverTimestamp(),
-    });
+        console.log("✅ Direct chat + message created");
 
-    console.log("✅ Reset + Seed complete! Check Firestore.");
-  }
+        // --- GROUP
+        const groupId = "seed-group-1";
+        await setDoc(doc(db, "groups", groupId), {
+          name: "Seed Group",
+          members: [userA, userB],
+          createdAt: serverTimestamp(),
+          lastAt: serverTimestamp(),
+          lastMsg: "Hello group from seed",
+        });
 
-  signInAnonymously(auth)
-    .then(() => {
-      console.log("🔑 Signed in anonymously, running seed…");
-      resetAndSeed();
-    })
-    .catch((err) => console.error("Auth error:", err));
-</script>
+        await addDoc(collection(db, "groupMessages", groupId, "items"), {
+          text: "Welcome to the group 🎉",
+          senderEmail: userB,
+          createdAt: serverTimestamp(),
+        });
+
+        console.log("✅ Group + group message created");
+        console.log("🌱 Reset + Seed complete! Check Firestore.");
+      }
+
+      signInAnonymously(auth)
+        .then(() => seed())
+        .catch((e) => console.error("Auth failed", e));
+    </script>
+  </body>
+</html>
