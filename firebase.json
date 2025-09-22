@@ -1,5 +1,28 @@
 {
-  "firestore": { "rules": "firestore.rules" },
-  "storage":   { "rules": "storage.rules" },
-  "hosting":   { "public": "public", "ignore": ["firebase.json","**/.*","**/node_modules/**"] }
+  "hosting": {
+    "public": "public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**",
+      "reset-seed.html",
+      "seed.html",
+      "test-cors.html",
+      "server.js",
+      "server.py"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "storage": {
+    "rules": "storage.rules"
+  }
 }
