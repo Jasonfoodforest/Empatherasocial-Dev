@@ -1,62 +1,207 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Profile • EmpathEra</title>
   <style>
-    :root{--bg:#0e0f12;--panel:#1a1d22;--muted:#9aa3af;--text:#e5e7eb;--accent:#18c964}
-    html,body{margin:0;background:var(--bg);color:var(--text);font:16px/1.4 system-ui,-apple-system,Segoe UI,Roboto}
-    main{max-width:900px;margin:12px auto;padding:0 18px}
-    h1{font-size:34px;margin:12px 0 18px}
-    .panel{background:var(--panel);border-radius:14px;padding:14px}
-    .row{display:grid;grid-template-columns:160px 1fr;gap:12px;align-items:center;margin:10px 0}
-    .input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid #2a2f39;background:#0f1217;color:var(--text)}
-    .btn{background:var(--accent);color:#08110d;border:none;padding:10px 14px;border-radius:10px;cursor:pointer}
-    .muted{color:#94a3b8}
+    :root {
+      --bg:#0e0f12; --panel:#1a1d22; --ink:#e5e7eb;
+      --muted:#94a3b8; --accent:#18c964;
+    }
+    html,body { margin:0; background:var(--bg); color:var(--ink); font:16px system-ui; }
+
+    /* ---- NAV identical to group / ebooks ---- */
+    header { background:#12161b; padding:12px 16px; }
+    nav { display:flex; flex-wrap:wrap; justify-content:center; }
+    nav a {
+      color:#6ee7ff;
+      margin:6px 10px;
+      text-decoration:none;
+      font-weight:500;
+      padding:4px 10px;
+      border-radius:8px;
+      transition:color .2s ease, background .2s ease;
+    }
+    nav a.active {
+      background:var(--accent);
+      color:#04150e;
+      font-weight:700;
+    }
+    nav a:hover { color:#ffffff; }
+
+    /* ---- MAIN PROFILE CONTENT ---- */
+    main { max-width:900px; margin:20px auto; padding:0 18px; }
+    h1 { color:#6ee7ff; text-align:center; }
+
+    .profile-card {
+      background:#1f2329; border-radius:12px; padding:20px;
+      display:flex; flex-direction:column; align-items:center;
+    }
+    .profile-card img {
+      width:120px; height:120px; border-radius:50%;
+      object-fit:cover; margin-bottom:12px;
+    }
+    .profile-card input[type="text"] {
+      width:100%; margin-bottom:12px; padding:10px;
+      border:none; border-radius:8px;
+    }
+    .section { width:100%; margin-top:20px; }
+    .section h3 { margin-bottom:10px; color:#6ee7ff; }
+    .grid {
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap:10px;
+    }
+    label {
+      display:flex; align-items:center; gap:6px;
+      background:#2a2f37; padding:6px 10px; border-radius:8px;
+      cursor:pointer;
+    }
+    input[type="checkbox"] { transform: scale(1.2); }
+    button {
+      margin-top:20px;
+      background:#6ee7ff; border:none; padding:12px 18px;
+      border-radius:8px; cursor:pointer; font-weight:bold; color:#0e0f12;
+    }
+
+    @media (max-width:768px) {
+      nav { flex-wrap:wrap; }
+      nav a { margin:4px 6px; font-size:15px; }
+    }
   </style>
 </head>
+
 <body>
-  <div id="app-header"></div>
+  <header>
+    <nav>
+      <a href="feed.html">Feed</a>
+      <a href="vibe.html">Vibe</a>
+      <a href="intelligence.html">Intelligence</a>
+      <a href="shopping.html">Shopping</a>
+      <a href="message.html">Message</a>
+      <a href="group.html">Group</a>
+      <a href="ebooks.html">Ebooks/Audio</a>
+      <a href="profile.html" class="active">Profile</a>
+      <a href="ai.html">EmpathEra AI</a>
+      <a href="#" id="btnLogout">Logout</a>
+    </nav>
+  </header>
 
   <main>
-    <h1>Profile</h1>
-    <section class="panel">
-      <div class="row">
-        <div class="muted">Email</div>
-        <div id="profileEmail" class="muted"></div>
-      </div>
+    <h1>Your Profile</h1>
+    <div class="profile-card">
+      <img id="profilePic" src="default-avatar.png" alt="Profile Picture" />
+      <input type="file" id="picUpload" accept="image/*" />
 
-      <div class="row">
-        <label for="profileName" class="muted">Display name</label>
-        <input id="profileName" class="input" placeholder="Your name"/>
-      </div>
+      <input type="text" id="displayName" placeholder="Display Name" />
+      <input type="text" id="location" placeholder="Location (City, Country)" />
 
-      <div class="row">
-        <div class="muted">Photo</div>
-        <div>
-          <img id="profilePic" src="" alt="Profile picture" style="width:120px;height:120px;border-radius:50%;object-fit:cover;background:#0f1217;border:1px solid #2a2f39"/>
-          <div style="margin-top:8px">
-            <input id="picFile" type="file" accept="image/*"/>
-          </div>
+      <!-- 🌍 Languages -->
+      <div class="section">
+        <h3>Languages</h3>
+        <div class="grid">
+          <label><input type="checkbox" name="languages" value="en"> English</label>
+          <label><input type="checkbox" name="languages" value="vi"> Vietnamese</label>
+          <label><input type="checkbox" name="languages" value="es"> Spanish</label>
+          <label><input type="checkbox" name="languages" value="fr"> French</label>
+          <label><input type="checkbox" name="languages" value="de"> German</label>
+          <label><input type="checkbox" name="languages" value="zh"> Chinese</label>
+          <label><input type="checkbox" name="languages" value="ja"> Japanese</label>
+          <label><input type="checkbox" name="languages" value="ko"> Korean</label>
+          <label><input type="checkbox" name="languages" value="it"> Italian</label>
+          <label><input type="checkbox" name="languages" value="pt"> Portuguese</label>
+          <label><input type="checkbox" name="languages" value="ru"> Russian</label>
+          <label><input type="checkbox" name="languages" value="ar"> Arabic</label>
+          <label><input type="checkbox" name="languages" value="hi"> Hindi</label>
+          <label><input type="checkbox" name="languages" value="th"> Thai</label>
+          <label><input type="checkbox" name="languages" value="ms"> Malay</label>
+          <label><input type="checkbox" name="languages" value="tr"> Turkish</label>
+          <label><input type="checkbox" name="languages" value="nl"> Dutch</label>
+          <label><input type="checkbox" name="languages" value="sv"> Swedish</label>
+          <label><input type="checkbox" name="languages" value="pl"> Polish</label>
+          <label><input type="checkbox" name="languages" value="uk"> Ukrainian</label>
+          <label><input type="checkbox" name="languages" value="fa"> Persian</label>
+          <label><input type="checkbox" name="languages" value="he"> Hebrew</label>
+          <label><input type="checkbox" name="languages" value="ta"> Tamil</label>
+          <label><input type="checkbox" name="languages" value="bn"> Bengali</label>
+          <label><input type="checkbox" name="languages" value="pa"> Punjabi</label>
+          <label><input type="checkbox" name="languages" value="gu"> Gujarati</label>
+          <label><input type="checkbox" name="languages" value="ur"> Urdu</label>
+          <label><input type="checkbox" name="languages" value="id"> Indonesian</label>
+          <label><input type="checkbox" name="languages" value="ro"> Romanian</label>
+          <label><input type="checkbox" name="languages" value="hu"> Hungarian</label>
+          <label><input type="checkbox" name="languages" value="cs"> Czech</label>
+          <label><input type="checkbox" name="languages" value="el"> Greek</label>
+          <label><input type="checkbox" name="languages" value="fi"> Finnish</label>
+          <label><input type="checkbox" name="languages" value="da"> Danish</label>
+          <label><input type="checkbox" name="languages" value="no"> Norwegian</label>
+          <label><input type="checkbox" name="languages" value="sr"> Serbian</label>
+          <label><input type="checkbox" name="languages" value="hr"> Croatian</label>
+          <label><input type="checkbox" name="languages" value="sk"> Slovak</label>
+          <label><input type="checkbox" name="languages" value="bg"> Bulgarian</label>
+          <label><input type="checkbox" name="languages" value="sw"> Swahili</label>
         </div>
       </div>
 
-      <div class="row">
-        <div></div>
-        <div style="display:flex;gap:10px;align-items:center">
-          <button id="saveBtn" class="btn">Save changes</button>
-          <button id="logoutBtn" class="btn" style="background:#22d3ee;color:#05202A">Logout</button>
+      <!-- 🎯 Interests -->
+      <div class="section">
+        <h3>Interests</h3>
+        <div class="grid">
+          <label><input type="checkbox" name="interests" value="tech"> Technology</label>
+          <label><input type="checkbox" name="interests" value="music"> Music</label>
+          <label><input type="checkbox" name="interests" value="sports"> Sports</label>
+          <label><input type="checkbox" name="interests" value="movies"> Movies</label>
+          <label><input type="checkbox" name="interests" value="gaming"> Gaming</label>
+          <label><input type="checkbox" name="interests" value="travel"> Travel</label>
+          <label><input type="checkbox" name="interests" value="cooking"> Cooking</label>
+          <label><input type="checkbox" name="interests" value="fitness"> Fitness</label>
+          <label><input type="checkbox" name="interests" value="reading"> Reading</label>
+          <label><input type="checkbox" name="interests" value="fashion"> Fashion</label>
+          <label><input type="checkbox" name="interests" value="art"> Art</label>
+          <label><input type="checkbox" name="interests" value="photography"> Photography</label>
+          <label><input type="checkbox" name="interests" value="writing"> Writing</label>
+          <label><input type="checkbox" name="interests" value="history"> History</label>
+          <label><input type="checkbox" name="interests" value="politics"> Politics</label>
+          <label><input type="checkbox" name="interests" value="science"> Science</label>
+          <label><input type="checkbox" name="interests" value="business"> Business</label>
+          <label><input type="checkbox" name="interests" value="finance"> Finance</label>
+          <label><input type="checkbox" name="interests" value="education"> Education</label>
+          <label><input type="checkbox" name="interests" value="languages"> Languages</label>
+          <label><input type="checkbox" name="interests" value="nature"> Nature</label>
+          <label><input type="checkbox" name="interests" value="animals"> Animals</label>
+          <label><input type="checkbox" name="interests" value="spirituality"> Spirituality</label>
+          <label><input type="checkbox" name="interests" value="psychology"> Psychology</label>
+          <label><input type="checkbox" name="interests" value="cars"> Cars</label>
+          <label><input type="checkbox" name="interests" value="motorcycles"> Motorcycles</label>
+          <label><input type="checkbox" name="interests" value="diy"> DIY / Making</label>
+          <label><input type="checkbox" name="interests" value="gardening"> Gardening</label>
+          <label><input type="checkbox" name="interests" value="food"> Food</label>
+          <label><input type="checkbox" name="interests" value="wine"> Wine</label>
+          <label><input type="checkbox" name="interests" value="beer"> Beer</label>
+          <label><input type="checkbox" name="interests" value="theater"> Theater</label>
+          <label><input type="checkbox" name="interests" value="dance"> Dance</label>
+          <label><input type="checkbox" name="interests" value="poetry"> Poetry</label>
+          <label><input type="checkbox" name="interests" value="architecture"> Architecture</label>
+          <label><input type="checkbox" name="interests" value="design"> Design</label>
+          <label><input type="checkbox" name="interests" value="marketing"> Marketing</label>
+          <label><input type="checkbox" name="interests" value="law"> Law</label>
+          <label><input type="checkbox" name="interests" value="medicine"> Medicine</label>
+          <label><input type="checkbox" name="interests" value="ai"> Artificial Intelligence</label>
+          <label><input type="checkbox" name="interests" value="blockchain"> Blockchain</label>
+          <label><input type="checkbox" name="interests" value="startups"> Startups</label>
+          <label><input type="checkbox" name="interests" value="volunteering"> Volunteering</label>
         </div>
       </div>
 
-      <div id="err" style="color:#fca5a5;margin-top:8px"></div>
-    </section>
+      <button id="saveProfile">Save Profile</button>
+    </div>
   </main>
 
-  <script type="module" src="./tabs.js"></script>
+  <script type="module" src="./firebase-config.js"></script>
+  <script type="module" src="./auth-guard.js"></script>
+  <script type="module" src="./logout.js"></script>
   <script type="module" src="./profile.js"></script>
 </body>
 </html>
-
 

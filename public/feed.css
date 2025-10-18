@@ -1,0 +1,122 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #121212;
+  color: #eee;
+  margin: 0;
+  padding: 0;
+}
+
+nav {
+  background: #000;
+  padding: 10px;
+  display: flex;
+  gap: 15px;
+}
+
+nav a {
+  color: #0f0;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+nav a.active {
+  color: #fff;
+}
+
+main {
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+}
+
+#postBox {
+  background: #1e1e1e;
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+#postText {
+  width: 100%;
+  height: 60px;
+  border-radius: 8px;
+  border: none;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+#postBtn {
+  background: #00ff99;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+#feedList {
+  margin-top: 20px;
+}
+
+.post-box {
+  background: #1e1e1e;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  position: relative;
+}
+
+.delete-btn {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  background: #ff8800;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  color: #000;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.post-user {
+  font-weight: bold;
+  color: #00ff99;
+  text-decoration: none;
+}
+
+.post-user:hover {
+  text-decoration: underline;
+}
+
+.post-image {
+  max-width: 70%;
+  border-radius: 10px;
+  display: block;
+  margin: 10px auto;
+}
+
+.post-time {
+  font-size: 0.8rem;
+  color: #aaa;
+  margin-top: 5px;
+}
+
+.reactions {
+  margin-top: 10px;
+}
+
+.reactions button {
+  background: transparent;
+  border: none;
+  margin-right: 12px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #ccc;
+}
+
+.reactions button:hover {
+  transform: scale(1.2);
+  color: #fff;
+}

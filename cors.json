@@ -1,12 +1,11 @@
 [
   {
-    "origin": ["http://localhost:3000"],
-    "method": ["GET", "POST", "PUT"],
+    "origin": ["https://www.empatherasocial.com", "https://empatherasocial.com"],
+    "method": ["GET", "POST", "PUT", "DELETE", "HEAD"],
+    "responseHeader": ["Content-Type", "x-goog-resumable", "Authorization"],
     "maxAgeSeconds": 3600
   }
 ]
-
-
 
 
 

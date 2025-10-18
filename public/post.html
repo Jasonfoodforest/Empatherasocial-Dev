@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Create Post — EmpathEra</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background:#0e0f12; color:#e5e7eb; margin:0; padding:20px; }
+    textarea { width:100%; height:100px; margin-bottom:12px; border-radius:6px; padding:8px; }
+    button { padding:10px 14px; border:none; border-radius:6px; background:#18c964; color:#08110d; font-weight:bold; cursor:pointer; }
+  </style>
+</head>
+<body>
+  <h2>New Post</h2>
+  <textarea id="postText" placeholder="What's on your mind?"></textarea><br>
+  <button id="btnPost">Post</button>
+  <div id="msg"></div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+
+  <!-- Config -->
+  <script src="./firebase-config.js"></script>
+
+  <script>
+    // Protect page
+    auth.onAuthStateChanged(user => {
+      if (!user) location.href = "./index.html";
+    });
+
+    document.getElementById("btnPost").onclick = async () => {
+      const user = auth.currentUser;
+      const text = document.getElementById("postText").value;
+      if (!text.trim()) return;
+
+      try {
+        await db.collection("posts").add({
+          text,
+          authorUid: user.uid,
+          authorEmail: user.email || "guest",
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        document.getElementById("msg").textContent = "✅ Posted!";
+        document.getElementById("postText").value = "";
+      } catch (e) {
+        console.error(e);
+        document.getElementById("msg").textContent = "❌ Error posting.";
+      }
+    };
+  </script>
+</body>
+</html>

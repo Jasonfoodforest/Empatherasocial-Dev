@@ -1,5 +1,26 @@
 {
-  "firestore": { "rules": "firestore.rules" },
-  "storage":   { "rules": "storage.rules" },
-  "hosting":   { "public": "public", "ignore": ["firebase.json","**/.*","**/node_modules/**"] }
+  "hosting": {
+    "public": "public",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "cleanUrls": true,
+    "headers": [
+      {
+        "source": "/ebooks/**",
+        "headers": [
+          { "key": "Cache-Control", "value": "public,max-age=3600" },
+          { "key": "Access-Control-Allow-Origin", "value": "*" },
+          { "key": "Content-Type", "value": "application/pdf" }
+        ]
+      },
+      {
+        "source": "/ebooks.html",
+        "headers": [
+          { "key": "Cache-Control", "value": "public,max-age=300" },
+          { "key": "Access-Control-Allow-Origin", "value": "*" }
+        ]
+      }
+    ]
+  }
 }
+
+

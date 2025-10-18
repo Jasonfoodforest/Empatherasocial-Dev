@@ -1,48 +1,189 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Ebooks • EmpathEra</title>
-  <link rel="icon" href="./logo.png"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ebooks/Audio • EmpathEra</title>
+  <link rel="stylesheet" href="style.css" />
   <style>
-    :root { --bg:#0e0f12; --panel:#1a1d22; --muted:#9aa3af; --text:#e5e7eb; --accent:#18c964; }
-    html,body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto}
-    main{max-width:1000px;margin:10px auto;padding:0 18px}
-    h1{font-size:34px;margin:12px 0 18px}
-    .panel{background:var(--panel);border-radius:14px;padding:16px}
-    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-top:16px}
-    .card{background:#141821;border:1px solid #252b36;border-radius:14px;padding:14px}
-    .muted{color:#cbd5e1}
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin:0; background:#0e0f12; color:#e5e7eb; }
+    header { background:#12161b; padding:12px 16px; }
+    nav a { color:#6ee7ff; margin-right:16px; text-decoration:none; }
+    nav a.active { color:#fff; font-weight:700; }
+    main { max-width:980px; margin:24px auto; padding:0 16px; }
+    h1 { font-size:32px; margin:8px 0 20px; color:#6ee7ff; }
+
+    .controls { display:flex; flex-wrap:wrap; align-items:center; gap:10px; background:#1a1d22; padding:12px; border-radius:18px; margin-bottom:20px; box-shadow:0 10px 28px rgba(0,0,0,.25); }
+    select,input[type=range]{background:#0f1217;color:#e5e7eb;border:none;border-radius:8px;padding:6px 10px;}
+    label{font-size:14px;color:#9ca3af;}
+    .tiny{font-size:13px;color:#9ca3af;}
+
+    .ebook { background:#1a1d22; border-radius:18px; padding:16px; box-shadow:0 10px 28px rgba(0,0,0,.25); margin-bottom:22px; }
+    iframe { width:100%; height:440px; border:none; border-radius:12px; background:#000; }
+    h2 { font-size:20px; color:#6ee7ff; margin-top:10px; }
+    p { color:#cbd5e1; font-size:15px; line-height:1.6; margin-top:6px; }
+
+    button { background:#18c964; border:none; border-radius:10px; color:#04150e; padding:9px 14px; font-weight:700; cursor:pointer; margin-right:8px; }
+    button.secondary { background:#334155; color:#e5e7eb; }
+    button.reset { background:#ff8b24; color:#fff; }
+
+    footer { margin:40px 0 50px; text-align:center; font-size:14px; color:#9ca3af; }
   </style>
 </head>
 <body>
-  <div id="app-header"></div>
+  <header>
+    <nav>
+      <a href="feed.html">Feed</a>
+      <a href="vibe.html">Vibe</a>
+      <a href="intelligence.html">Intelligence</a>
+      <a href="shopping.html">Shopping</a>
+      <a href="message.html">Message</a>
+      <a href="group.html">Group</a>
+      <a href="ebooks.html" class="active">Ebooks/Audio</a>
+      <a href="profile.html">Profile</a>
+      <a href="ai.html">EmpathEra AI</a>
+    </nav>
+  </header>
 
   <main>
-    <h1>Ebooks</h1>
+    <h1>📚 EmpathEra E-Books & Audio</h1>
 
-    <section class="panel">
-      <p class="muted"><strong>Under construction — coming soon.</strong></p>
-      <p><strong>Our mission for Ebooks:</strong> curate short, practical reads that help people live with empathy and skill—bite-size guides, zines, and field manuals on mindful living, regenerative systems, creative work, emotional health, and values-aligned tech.</p>
+    <section class="controls">
+      <label>Voice <select id="voice"></select></label>
+      <label>Speed <input id="rate" type="range" min="0.6" max="1.4" step="0.1" value="0.9" />
+      <span id="rateVal">0.9×</span></label>
+      <span class="tiny">Tap Read Aloud to begin. Skip +3 jumps ahead. Reset fixes stuck audio on phones.</span>
     </section>
 
-    <section class="grid">
-      <article class="card">
-        <h3>Starter Guide to Everyday Empathy</h3>
-        <p class="muted">A quick workbook for better listening, reflection, and action.</p>
-      </article>
-      <article class="card">
-        <h3>Regenerative Kitchen: Grow & Cook</h3>
-        <p class="muted">From balcony herbs to food forests—small steps that scale.</p>
-      </article>
-      <article class="card">
-        <h3>Calm Tech, Kind Tech</h3>
-        <p class="muted">Design principles that respect attention, dignity, and community.</p>
-      </article>
-    </section>
+    <div class="ebook">
+      <iframe src="/ebooks/pg11-images.pdf"></iframe>
+      <h2>Alice’s Adventures in Wonderland</h2>
+      <p>Follow Alice as she journeys through a fantastical world filled with curious creatures and whimsical lessons about perception and identity.</p>
+      <button onclick="readPDF(this)">Read Aloud</button>
+      <button class="secondary" onclick="skipForward(this)">Skip +3</button>
+      <button class="reset" onclick="resetAudio()">Reset 🔄</button>
+    </div>
+
+    <div class="ebook">
+      <iframe src="/ebooks/pg2701-images.pdf"></iframe>
+      <h2>Moby Dick; Or, The Whale</h2>
+      <p>Herman Melville’s timeless story of obsession and revenge, capturing the eternal struggle between man and nature through Captain Ahab’s relentless pursuit of the great white whale.</p>
+      <button onclick="readPDF(this)">Read Aloud</button>
+      <button class="secondary" onclick="skipForward(this)">Skip +3</button>
+      <button class="reset" onclick="resetAudio()">Reset 🔄</button>
+    </div>
+
+    <div class="ebook">
+      <iframe src="/ebooks/pg1342-images.pdf"></iframe>
+      <h2>Pride and Prejudice</h2>
+      <p>Jane Austen’s classic novel exploring love, class, and self-discovery in the early 19th century through the eyes of Elizabeth Bennet and Mr. Darcy.</p>
+      <button onclick="readPDF(this)">Read Aloud</button>
+      <button class="secondary" onclick="skipForward(this)">Skip +3</button>
+      <button class="reset" onclick="resetAudio()">Reset 🔄</button>
+    </div>
+
+    <div class="ebook">
+      <iframe src="/ebooks/Daily_Feelings_Diary_Journey_with_GROK_by_NJN_v5_final.pdf"></iframe>
+      <h2>Daily Feelings Diary — Journey with GROK</h2>
+      <p>An emotional reflection guide co-authored with GROK, designed to help readers explore inner peace and self-awareness through daily prompts and mindfulness.</p>
+      <button onclick="readPDF(this)">Read Aloud</button>
+      <button class="secondary" onclick="skipForward(this)">Skip +3</button>
+      <button class="reset" onclick="resetAudio()">Reset 🔄</button>
+    </div>
   </main>
 
-  <script type="module" src="./tabs.js"></script>
+  <footer>EmpathEra • Sharing stories that shape empathy 💫</footer>
+
+  <script src="/libs/pdf.js/pdf.bundle.min.js"></script>
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "/libs/pdf.js/pdf.worker.min.js";
+
+    function initVoices(){
+      const voiceSel=document.getElementById("voice");
+      const rate=document.getElementById("rate");
+      const rateVal=document.getElementById("rateVal");
+      function load(){
+        const voices=speechSynthesis.getVoices();
+        voiceSel.innerHTML="";
+        voices.filter(v=>v.lang.startsWith("en")).forEach(v=>{
+          const o=document.createElement("option");
+          o.value=v.name;o.textContent=`${v.name} (${v.lang})`;voiceSel.appendChild(o);
+        });
+        const saved=localStorage.getItem("EmpathVoice");
+        if(saved)voiceSel.value=saved;
+      }
+      speechSynthesis.onvoiceschanged=load;
+      load();
+      rate.oninput=()=>{rateVal.textContent=rate.value+"×";localStorage.setItem("EmpathRate",rate.value);}
+      rate.value=localStorage.getItem("EmpathRate")||0.9;
+      rateVal.textContent=rate.value+"×";
+    }
+    initVoices();
+
+    function resetAudio(){
+      // Manual full reset for mobile browsers
+      try{
+        speechSynthesis.cancel();
+        setTimeout(()=>{
+          speechSynthesis.resume();
+          speechSynthesis.cancel();
+        },200);
+        alert("🔄 Audio engine reset.\nYou can now play again!");
+      }catch(e){
+        console.error(e);
+        alert("Reset failed, please reload page.");
+      }
+    }
+
+    async function readPDF(btn){
+      speechSynthesis.cancel();
+      const frame=btn.parentElement.querySelector("iframe");
+      const url=frame.src;
+      const key="Resume_"+url;
+      const resume=+localStorage.getItem(key)||1;
+      btn.textContent="Loading...";
+      try{
+        const pdf=await pdfjsLib.getDocument(url).promise;
+        let text="";
+        const end=Math.min(pdf.numPages,resume+7);
+        for(let i=resume;i<=end;i++){
+          const page=await pdf.getPage(i);
+          const c=await page.getTextContent();
+          text+=c.items.map(t=>t.str).join(" ")+" ";
+        }
+        if(!text.trim()){alert("No readable text found.");btn.textContent="Read Aloud";return;}
+        const utter=new SpeechSynthesisUtterance(text);
+        utter.voice=speechSynthesis.getVoices().find(v=>v.name===document.getElementById("voice").value)||null;
+        utter.rate=+document.getElementById("rate").value;
+        utter.onend=()=>{
+          localStorage.setItem(key,resume+7);
+          btn.textContent="Read Aloud";
+        };
+        utter.onerror=()=>{btn.textContent="Read Aloud";};
+        speechSynthesis.speak(utter);
+        btn.textContent="⏸ Pause";
+      }catch(e){
+        console.error(e);
+        alert("❌ Failed to load or read this PDF.");
+        btn.textContent="Read Aloud";
+      }
+    }
+
+    function skipForward(btn){
+      speechSynthesis.cancel();
+      const frame=btn.parentElement.querySelector("iframe");
+      const key="Resume_"+frame.src;
+      const next=(+localStorage.getItem(key)||1)+3;
+      localStorage.setItem(key,next);
+      btn.textContent="⏭ Skipped +3";
+      setTimeout(()=>btn.textContent="Skip +3",1200);
+    }
+
+    window.readPDF=readPDF;
+    window.skipForward=skipForward;
+    window.resetAudio=resetAudio;
+  </script>
 </body>
 </html>
+
+

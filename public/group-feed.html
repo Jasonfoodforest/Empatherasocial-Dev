@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Group Feed | EmpathEra</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav>
+    <a href="feed.html">Feed</a>
+    <a href="vibe.html">Vibe</a>
+    <a href="intelligence.html">Intelligence</a>
+    <a href="shopping.html">Shopping</a>
+    <a href="message.html">Message</a>
+    <a href="group.html" class="active">Group</a>
+    <a href="ebooks.html">Ebooks</a>
+    <a href="profile.html">Profile</a>
+    <a href="ai.html">EmpathEra AI</a>
+    <a href="logout.html">Logout</a>
+  </nav>
+
+  <main>
+    <section id="groupHeader" style="text-align:center;margin:20px 0;">
+      <h2 id="groupTitle" style="color:#6ee7ff; font-size:1.8em; margin-bottom:5px;"></h2>
+      <p id="groupDesc" style="color:#bcd5e1; margin-bottom:15px;">Welcome to your group space.</p>
+      <button id="backBtn" class="btn btn-blue" style="margin-bottom:20px;">← Back to Groups</button>
+    </section>
+
+    <section class="create-post">
+      <textarea id="postText" placeholder="Share an update with your group..."></textarea>
+      <input type="file" id="postFile" accept="image/*,video/*" />
+      <button id="postBtn" class="btn btn-green">Post</button>
+      <div id="postErr" style="color:#f87171; margin-top:10px;"></div>
+    </section>
+
+    <div id="feed"></div>
+  </main>
+
+  <script type="module" src="./firebase-config.js"></script>
+  <script type="module" src="./auth-guard.js"></script>
+  <script type="module" src="./logout.js"></script>
+  <script type="module" src="./group-feed.js"></script>
+</body>
+</html>
+
+

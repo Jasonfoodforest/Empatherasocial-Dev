@@ -1,25 +1,30 @@
-// firebase-config.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
 import { getStorage } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-storage.js";
 
-// Your Firebase config object
+// --- Boreal Array 457400-H5 (production) ---
 const firebaseConfig = {
-  apiKey: "AIzaSyCegX-9F8lvrBr85U8-9kva0_P8o2Ik81A",
-  authDomain: "empatherasocial-dev.firebaseapp.com",
-  projectId: "empatherasocial-dev",
-  storageBucket: "empatherasocial-dev.firebasestorage.app",
-  messagingSenderId: "890072969016",
-  appId: "1:890072969016:web:27640b219e0564331c5bcd",
+  apiKey: "AIzaSyAKK846o1Zsw25BE6XeqZjOk8TQCIC8eZc",
+  authDomain: "boreal-array-457400-h5.firebaseapp.com",
+  databaseURL: "https://boreal-array-457400-h5-default-rtdb.firebaseio.com",
+  projectId: "boreal-array-457400-h5",
+  storageBucket: "boreal-array-457400-h5.firebasestorage.app", // ✅ Correct domain
+  messagingSenderId: "571965849307",
+  appId: "1:571965849307:web:e22400b1f3b9115504d6fe",
+  measurementId: "G-4LTLT4SJS3"
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
+export const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+export const storage = getStorage(app);
 
-// Export services
-const auth = getAuth(app);
-const db = getFirestore(app);
-const storage = getStorage(app);
 
-export { app, auth, db, storage };
+
+
+
+
+
+

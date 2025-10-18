@@ -1,104 +1,247 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Feed • EmpathEra</title>
-    <link rel="stylesheet" href="./style.css" />
-    <style>
-      main {
-        max-width: 700px; /* narrower feed */
-        margin: 0 auto;
-        padding: 20px;
-      }
-      .panel {
-        background: #1a1d22;
-        border-radius: 12px;
-        padding: 16px;
-        margin-bottom: 18px;
-      }
-      textarea {
-        width: 100%;
-        resize: vertical;
-        border-radius: 10px;
-        border: 1px solid #2a2f39;
-        background: #0f1217;
-        color: #e5e7eb;
-        padding: 10px;
-        margin-bottom: 10px;
-      }
-      .row {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-      }
-      #postFile {
-        flex: 1;
-      }
-      #postBtn {
-        background: #18c964;
-        padding: 10px 16px;
-        border-radius: 10px;
-        cursor: pointer;
-      }
-      article.card {
-        background: #101317;
-        border: 1px solid #222831;
-        border-radius: 12px;
-        padding: 14px;
-        margin-bottom: 14px;
-      }
-      .meta {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 14px;
-        margin-bottom: 6px;
-        color: #9aa3af;
-      }
-      .text {
-        margin-bottom: 8px;
-        font-size: 15px;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Your Feed • EmpathEra</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    :root {
+      --bg: #0e0f12;
+      --panel: #1a1d22;
+      --ink: #e5e7eb;
+      --muted: #94a3b8;
+      --accent: #10b981;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: system-ui, sans-serif;
+    }
+
+    header {
+      background: #12161b;
+      padding: 12px 16px;
+    }
+
+    nav a {
+      color: #6ee7ff;
+      margin-right: 16px;
+      text-decoration: none;
+    }
+
+    nav a.active {
+      color: #fff;
+      font-weight: 700;
+    }
+
+    main {
+      max-width: 980px;
+      margin: 24px auto;
+      padding: 0 16px;
+    }
+
+    h1 {
+      font-size: 28px;
+      color: #6ee7ff;
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    .composer {
+      background: var(--panel);
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+      margin-bottom: 18px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 70px;
+      background: #0f1217;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 16px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .btn-post {
+      background: var(--accent);
+      color: #04150e;
+    }
+
+    .btn-logout {
+      background: #ef4444;
+      color: #fff;
+      border-radius: 6px;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .post {
+      background: var(--panel);
+      border-radius: 18px;
+      padding: 16px;
+      margin: 18px 0;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
+      position: relative;
+    }
+
+    .post .x {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      background: #ff8b24;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 2px 7px;
+      cursor: pointer;
+      display: none;
+    }
+
+    .post.own .x {
+      display: inline-block;
+    }
+
+    .author {
+      color: #35fbc8;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-block;
+      margin-bottom: 6px;
+    }
+
+    .content {
+      margin: 6px 0 10px;
+    }
+
+    .media {
+      width: 100%;
+      max-width: 640px;
+      border-radius: 14px;
+      display: block;
+      margin: 10px auto;
+    }
+
+    video.media {
+      background: #000;
+    }
+
+    .when {
+      color: var(--muted);
+      font-size: 12px;
+      margin: 8px 0 10px;
+    }
+
+    .reactions {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      margin: 8px 0 12px;
+      justify-content: center;
+    }
+
+    .react {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .comments {
+      background: #151a20;
+      border-radius: 14px;
+      padding: 10px;
+    }
+
+    .comment {
+      margin: 6px 0;
+    }
+
+    .comment-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .comment-row input {
+      flex: 1;
+      padding: 9px 10px;
+      border: none;
+      border-radius: 10px;
+      background: #0f1217;
+      color: #fff;
+    }
+
+    .comment-row .btn {
+      padding: 9px 13px;
+      background: #10b981;
+      color: #fff;
+    }
+
+    @media (max-width: 768px) {
       .media {
-        max-width: 100%;
-        border-radius: 8px;
-        margin-top: 6px;
+        max-width: 90%;
       }
-      .btn-del {
-        background: #f97316; /* orange */
-        color: #fff;
-        border: none;
-        padding: 4px 10px;
-        font-size: 12px;
-        border-radius: 6px;
-        cursor: pointer;
-        margin-left: 10px;
-      }
-    </style>
-  </head>
-  <body data-active="feed">
-    <main>
-      <h1>Welcome to the Feed</h1>
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="feed.html" class="active">Feed</a>
+      <a href="vibe.html">Vibe</a>
+      <a href="intelligence.html">Intelligence</a>
+      <a href="shopping.html">Shopping</a>
+      <a href="message.html">Message</a>
+      <a href="group.html">Group</a>
+      <a href="ebooks.html">Ebooks/Audio</a>
+      <a href="profile.html">Profile</a>
+      <a href="ai.html">EmpathEra AI</a>
+      <button id="btnLogout" class="btn-logout">Logout</button>
+    </nav>
+  </header>
 
-      <section class="panel">
-        <textarea
-          id="postText"
-          rows="3"
-          placeholder="What's on your mind?"
-        ></textarea>
-        <div class="row">
-          <input type="file" id="postFile" accept="image/*,video/*" />
-          <button id="postBtn">Post</button>
-        </div>
-        <div id="err" class="err"></div>
-      </section>
+  <main>
+    <h1>Your Feed</h1>
 
-      <section id="feedList"></section>
-    </main>
+    <section class="composer">
+      <textarea id="postText" placeholder="What's on your mind?"></textarea>
+      <div class="row">
+        <input id="postFile" type="file" accept="image/*,video/*" />
+        <button id="postBtn" class="btn btn-post">Post</button>
+        <span class="hint" id="postHint"></span>
+      </div>
+    </section>
 
-    <!-- Scripts -->
-    <script type="module" src="./tabs.js"></script>
-    <script type="module" src="./feed.js"></script>
-  </body>
+    <div id="feedList"></div>
+  </main>
+
+  <script type="module" src="./firebase-config.js"></script>
+  <script type="module" src="./feed.js"></script>
+</body>
 </html>
+

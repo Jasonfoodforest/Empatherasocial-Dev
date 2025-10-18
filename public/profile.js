@@ -1,109 +1,98 @@
 import { auth, db, storage } from "./firebase-config.js";
-import {
-  onAuthStateChanged,
-  updateProfile,
-  signOut,
-} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
-import {
-  doc,
-  getDoc,
-  setDoc,
-  serverTimestamp,
-} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
-import {
-  ref as sRef,
-  uploadBytes,
-  getDownloadURL,
-} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-storage.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-storage.js";
 
-const ui = {
-  email: document.getElementById("profileEmail"),
-  displayName: document.getElementById("profileName"),
-  avatar: document.getElementById("profilePic"),
-  file: document.getElementById("picFile"),
-  save: document.getElementById("saveBtn"),
-  logout: document.getElementById("logoutBtn"),
-  err: document.getElementById("err"),
-};
+const displayNameEl = document.getElementById("displayName");
+const locationEl = document.getElementById("location");
+const picUploadEl = document.getElementById("picUpload");
+const profilePicEl = document.getElementById("profilePic");
+const saveBtn = document.getElementById("saveProfile");
 
-let me = null;
+let currentUser = null;
+let viewingUid = null;
+let photoURL = null;
 
-onAuthStateChanged(auth, async (u) => {
-  if (!u) {
-    location.href = "./index.html";
+// Get uid from URL if available
+const urlParams = new URLSearchParams(window.location.search);
+const uidFromUrl = urlParams.get("uid");
+
+// 🔹 Load profile when user logs in
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = "./index.html";
     return;
   }
-  me = u;
+  currentUser = user;
+  viewingUid = uidFromUrl || user.uid;
 
-  ui.email.textContent = u.email || "";
-  ui.displayName.value =
-    u.displayName || (u.email ? u.email.split("@")[0] : "User");
-  if (u.photoURL) ui.avatar.src = u.photoURL;
-
-  const uref = doc(db, "users", u.uid);
-  const snap = await getDoc(uref);
+  // get profile from Firestore
+  const snap = await getDoc(doc(db, "profiles", viewingUid));
   if (snap.exists()) {
-    const d = snap.data();
-    if (d.displayName && !u.displayName) ui.displayName.value = d.displayName;
-    if (d.photoURL) ui.avatar.src = d.photoURL;
-  } else {
-    await setDoc(
-      uref,
-      {
-        email: u.email || "",
-        displayName: ui.displayName.value,
-        photoURL: u.photoURL || "",
-        updatedAt: serverTimestamp(),
-      },
-      { merge: true },
-    );
+    const data = snap.data();
+    displayNameEl.value = data.displayName || "";
+    locationEl.value = data.location || "";
+    profilePicEl.src = data.photoURL || "default-avatar.png";
+
+    // restore languages
+    if (Array.isArray(data.languages)) {
+      data.languages.forEach(lang => {
+        const cb = document.querySelector(`input[name="languages"][value="${lang}"]`);
+        if (cb) cb.checked = true;
+      });
+    }
+
+    // restore interests
+    if (Array.isArray(data.interests)) {
+      data.interests.forEach(int => {
+        const cb = document.querySelector(`input[name="interests"][value="${int}"]`);
+        if (cb) cb.checked = true;
+      });
+    }
+  }
+
+  // 🔹 Hide editing tools if viewing someone else's profile
+  if (viewingUid !== currentUser.uid) {
+    displayNameEl.disabled = true;
+    locationEl.disabled = true;
+    picUploadEl.style.display = "none";
+    saveBtn.style.display = "none";
   }
 });
 
-ui.save.onclick = async () => {
-  ui.err.textContent = "";
-  if (!me) return;
+// 🔹 Upload new profile pic
+picUploadEl?.addEventListener("change", async () => {
+  if (!currentUser || viewingUid !== currentUser.uid || !picUploadEl.files[0]) return;
+  const file = picUploadEl.files[0];
+  const fileRef = ref(storage, `profilePics/${currentUser.uid}/${file.name}`);
+  await uploadBytes(fileRef, file);
+  photoURL = await getDownloadURL(fileRef);
+  profilePicEl.src = photoURL;
+});
+
+// 🔹 Save profile
+saveBtn?.addEventListener("click", async () => {
+  if (!currentUser || viewingUid !== currentUser.uid) return;
+
+  const langs = Array.from(document.querySelectorAll("input[name='languages']:checked"))
+    .map(cb => cb.value);
+
+  const interests = Array.from(document.querySelectorAll("input[name='interests']:checked"))
+    .map(cb => cb.value);
+
+  const profileData = {
+    displayName: displayNameEl.value,
+    location: locationEl.value,
+    photoURL: photoURL || profilePicEl.src,
+    languages: langs,
+    interests: interests
+  };
 
   try {
-    let photoURL = me.photoURL || "";
-    const f = ui.file.files?.[0];
-    if (f) {
-      const path = `avatars/${me.uid}/avatar.jpg`;
-      const r = sRef(storage, path);
-      await uploadBytes(r, f);
-      photoURL = await getDownloadURL(r);
-      ui.avatar.src = photoURL;
-    }
-
-    const newName =
-      (ui.displayName.value || "").trim() ||
-      (me.email?.split("@")[0] ?? "User");
-    await updateProfile(me, { displayName: newName, photoURL });
-
-    await setDoc(
-      doc(db, "users", me.uid),
-      {
-        email: me.email || "",
-        displayName: newName,
-        photoURL,
-        updatedAt: serverTimestamp(),
-      },
-      { merge: true },
-    );
-
-    alert("Saved!");
-  } catch (e) {
-    console.error(e);
-    ui.err.textContent = e.message || "Save failed";
+    await setDoc(doc(db, "profiles", currentUser.uid), profileData, { merge: true });
+    alert("Profile saved!");
+  } catch (err) {
+    console.error("Error saving profile:", err);
+    alert("Error: " + err.message);
   }
-};
-
-ui.logout.onclick = async () => {
-  try {
-    await signOut(auth);
-    location.href = "./index.html";
-  } catch (e) {
-    console.error("Logout failed:", e);
-    ui.err.textContent = e.message || "Logout failed";
-  }
-};
+});

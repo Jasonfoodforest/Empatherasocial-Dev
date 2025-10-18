@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vibe • EmpathEra</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      margin: 0;
+      background: #0e0f12;
+      color: #e5e7eb;
+    }
+    header {
+      background: #12161b;
+      padding: 12px 16px;
+    }
+    nav a {
+      color: #6ee7ff;
+      margin-right: 16px;
+      text-decoration: none;
+    }
+    nav a.active {
+      color: #fff;
+      font-weight: 700;
+    }
+    main {
+      max-width: 980px;
+      margin: 24px auto;
+      padding: 0 16px;
+    }
+    h1 {
+      font-size: 32px;
+      margin: 8px 0 20px;
+    }
+    .post {
+      background: #1a1d22;
+      border-radius: 18px;
+      padding: 16px;
+      margin: 18px 0;
+      box-shadow: 0 10px 28px rgba(0,0,0,.25);
+      position: relative;
+    }
+    .post .x {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      background: #ff8b24;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 2px 7px;
+      cursor: pointer;
+      display: none;
+    }
+    .post.own .x { display: inline-block; }
+    .author { color: #35fbc8; font-weight: 700; margin-bottom: 6px; display: inline-block; text-decoration: none; }
+    .content { margin: 6px 0 10px; }
+    .media { max-width: 40%; height: auto; border-radius: 14px; display: block; margin: 12px auto; }
+    .when { color: #9aa4ae; font-size: 12px; margin: 8px 0 10px; }
+    .reactions { display: flex; gap: 18px; align-items: center; margin: 8px 0 12px; }
+    .react { cursor: pointer; user-select: none; }
+    .react .count { margin-left: 6px; color: #cbd5e1; }
+    .comments { background: #151a20; border-radius: 14px; padding: 10px; }
+    .comment { margin: 6px 0; }
+    .see-more { background: #2a323c; color: #cfe; border: none; border-radius: 10px; padding: 7px 12px; cursor: pointer; font-weight: 700; }
+    .comment-row { display: flex; gap: 10px; margin-top: 8px; }
+    .comment-row input { flex: 1; padding: 9px 10px; border: none; border-radius: 10px; background: #0f1217; color: #fff; }
+    .comment-row .btn { padding: 9px 13px; border: none; border-radius: 10px; background: #18c964; color: #04150e; cursor: pointer; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="feed.html">Feed</a>
+      <a href="vibe.html" class="active">Vibe</a>
+      <a href="intelligence.html">Intelligence</a>
+      <a href="shopping.html">Shopping</a>
+      <a href="message.html">Message</a>
+      <a href="group.html">Group</a>
+      <a href="ebooks.html">Ebooks/Audio</a>
+      <a href="profile.html">Profile</a>
+      <a href="ai.html">EmpathEra AI</a>
+      <a href="#" id="btnLogout" style="color:#ff7777;font-weight:700;">Logout</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Vibe ✨</h1>
+    <div id="vibeList"></div>
+  </main>
+
+  <script type="module" src="./firebase-config.js"></script>
+  <script type="module" src="./auth-guard.js"></script>
+  <script type="module" src="./logout.js"></script>
+  <script type="module" src="./vibe.js"></script>
+</body>
+</html>
+

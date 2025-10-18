@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Messages • EmpathEra</title>
+  <style>
+    :root {
+      --bg:#0e0f12; --panel:#1a1d22; --ink:#e5e7eb;
+      --muted:#94a3b8; --accent:#18c964;
+    }
+    html,body { margin:0; background:var(--bg); color:var(--ink); font:16px system-ui; }
+
+    /* ---- NAV ---- */
+    header { background:#12161b; padding:12px 16px; }
+    nav { display:flex; flex-wrap:wrap; justify-content:center; }
+    nav a {
+      color:#6ee7ff; margin:6px 10px; text-decoration:none; font-weight:500;
+      padding:4px 10px; border-radius:8px;
+    }
+    nav a.active { background:var(--accent); color:#04150e; font-weight:700; }
+    nav a:hover { color:#fff; }
+
+    /* ---- MAIN ---- */
+    main { max-width:1000px; margin:24px auto; padding:0 16px; }
+
+    h1 { font-size:26px; margin:10px 0 20px; color:#6ee7ff; }
+
+    .chat-container {
+      display:flex;
+      background:var(--panel);
+      border-radius:14px;
+      box-shadow:0 8px 24px rgba(0,0,0,.3);
+      min-height:70vh;
+      overflow:hidden;
+      flex-wrap:wrap;
+    }
+
+    /* ---- SIDEBAR ---- */
+    .sidebar {
+      flex:1 1 250px;
+      background:#1a1d22;
+      border-right:1px solid #2a3037;
+      padding:16px;
+    }
+    .sidebar h3 { margin-top:0; color:#6ee7ff; }
+    .sidebar input {
+      width:100%; margin:6px 0; padding:8px;
+      background:#0f1217; border:none; border-radius:8px; color:#fff;
+    }
+    .sidebar .btn {
+      background:var(--accent); color:#04150e; border:none; border-radius:8px;
+      padding:8px 12px; font-weight:700; cursor:pointer; width:100%;
+      margin-bottom:12px;
+    }
+    .sidebar ul {
+      list-style:none; margin:0; padding:0; max-height:60vh; overflow-y:auto;
+    }
+    .sidebar li {
+      background:#14181e; border-radius:8px; margin-bottom:8px;
+      padding:10px; cursor:pointer;
+      display:flex; justify-content:space-between; align-items:center;
+      transition:0.2s;
+    }
+    .sidebar li:hover { background:#222830; }
+    .sidebar li.active { background:rgba(24,201,100,0.3); }
+    .chat-delete-btn {
+      background:none; border:none; color:#f87171; font-size:16px; cursor:pointer;
+    }
+
+    /* ---- CHAT MAIN ---- */
+    .chat-main {
+      flex:3 1 500px;
+      display:flex;
+      flex-direction:column;
+      background:#101317;
+      padding:16px;
+    }
+    #chatHeader {
+      font-weight:700;
+      margin-bottom:10px;
+      color:#6ee7ff;
+    }
+    .messages {
+      flex:1;
+      overflow-y:auto;
+      background:linear-gradient(135deg,#14181e,#101317);
+      border-radius:12px;
+      padding:12px;
+      margin-bottom:12px;
+    }
+    .msg {
+      max-width:70%;
+      margin:6px 0;
+      padding:10px 14px;
+      border-radius:14px;
+      word-wrap:break-word;
+    }
+    .msg.mine {
+      background:#18c96433;
+      align-self:flex-end;
+      margin-left:auto;
+    }
+    .msg.theirs {
+      background:#2a3037;
+      align-self:flex-start;
+    }
+    .msg img,.msg video {
+      width:100%;
+      border-radius:10px;
+      margin-top:6px;
+      max-height:300px;
+      object-fit:cover;
+    }
+    .timestamp {
+      font-size:11px;
+      color:#94a3b8;
+      margin-top:4px;
+    }
+    .delete-btn {
+      background:none; border:none; color:#f87171; font-size:14px;
+      cursor:pointer; float:right;
+    }
+
+    /* ---- CHAT INPUT ---- */
+.chat-input {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  border-top: 1px solid #2a3037;
+  padding-top: 10px;
+  flex-wrap: wrap;          /* ✅ allow wrap on small screens */
+}
+
+.chat-input input[type="text"] {
+  flex: 1 1 100%;
+  background: #0f1217;
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  padding: 10px;
+  min-width: 0;
+}
+
+.chat-input input[type="file"] {
+  flex: 1 1 auto;
+  max-width: 150px;          /* ✅ shrink file picker on mobile */
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.chat-input button {
+  background: var(--accent);
+  color: #04150e;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-weight: 700;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 600px) {
+  .chat-input {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+  .chat-input input[type="file"] {
+    max-width: 45%;
+  }
+  .chat-input button {
+    flex: 1 1 40%;
+    margin-top: 6px;
+  }
+}
+
+
+    @media (max-width:768px) {
+      .chat-container { flex-direction:column; }
+      .sidebar { border-right:none; border-bottom:1px solid #2a3037; }
+      .chat-main { flex:1; }
+      nav { flex-wrap:wrap; }
+      nav a { margin:4px 6px; font-size:15px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="feed.html">Feed</a>
+      <a href="vibe.html">Vibe</a>
+      <a href="intelligence.html">Intelligence</a>
+      <a href="shopping.html">Shopping</a>
+      <a href="message.html" class="active">Message</a>
+      <a href="group.html">Group</a>
+      <a href="ebooks.html">Ebooks/Audio</a>
+      <a href="profile.html">Profile</a>
+      <a href="ai.html">EmpathEra AI</a>
+      <a href="#" id="logoutBtn">Logout</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>Messages 💬</h1>
+
+    <div class="chat-container">
+      <div class="sidebar">
+        <h3>Chats</h3>
+        <input id="newChatInput" placeholder="Enter emails, comma separated" />
+        <button id="startChatBtn" class="btn">Start Chat</button>
+        <ul id="chatList"></ul>
+      </div>
+
+      <div class="chat-main">
+        <h3 id="chatHeader">Select a chat</h3>
+        <div id="messages" class="messages"></div>
+        <div class="chat-input">
+          <input id="messageInput" type="text" placeholder="Type a message..." />
+          <input id="fileInput" type="file" accept="image/*,video/*" />
+          <button id="sendBtn">Send</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="./firebase-config.js"></script>
+  <script type="module" src="./auth-guard.js"></script>
+  <script type="module" src="./logout.js"></script>
+  <script type="module" src="./message.js"></script>
+</body>
+</html>
+
+
+
+
+
+

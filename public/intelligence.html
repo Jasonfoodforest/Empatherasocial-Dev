@@ -1,39 +1,96 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Intelligence • EmpathEra</title>
+  <link rel="stylesheet" href="style.css" />
   <style>
-    main{max-width:980px;margin:10px auto;padding:0 18px}
-    .panel{background:#1a1d22;border-radius:14px;padding:14px}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:14px}
-    .card{background:#1a1d22;border-radius:12px;padding:12px}
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      margin: 0;
+      background: #0e0f12;
+      color: #e5e7eb;
+    }
+    header { background: #12161b; padding: 12px 16px; }
+    nav a {
+      color: #6ee7ff;
+      margin-right: 16px;
+      text-decoration: none;
+    }
+    nav a.active { color: #fff; font-weight: 700; }
+    main { max-width: 980px; margin: 24px auto; padding: 0 16px; }
+    h1 { font-size: 32px; margin: 8px 0 20px; }
+    .card, .post-card {
+      background: #1a1d22;
+      border-radius: 18px;
+      padding: 16px;
+      margin: 18px 0;
+      box-shadow: 0 10px 28px rgba(0,0,0,.25);
+    }
+    input[type="text"], input[type="file"] {
+      background: #0f1217;
+      border: none;
+      color: #fff;
+      border-radius: 10px;
+      padding: 10px;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    button {
+      background: #18c964;
+      border: none;
+      border-radius: 10px;
+      color: #04150e;
+      padding: 9px 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .intel-media { display:block; margin:12px auto; border-radius:12px; max-width:50%; }
+    .intel-title { font-weight:700; color:#6ee7ff; margin-bottom:8px; }
+    .intel-desc { margin-top:10px; line-height:1.5; }
+    .reactions { display:flex; gap:18px; align-items:center; margin:8px 0 12px; }
+    .react { cursor:pointer; user-select:none; }
+    .react .count { margin-left:6px; color:#cbd5e1; }
+    .comments { background:#151a20; border-radius:14px; padding:10px; }
+    .comment { margin:6px 0; }
+    .comment-row { display:flex; gap:10px; margin-top:8px; }
+    .comment-row input { flex:1; padding:9px 10px; border:none; border-radius:10px; background:#0f1217; color:#fff; }
+    .comment-row .btn { padding:9px 13px; border:none; border-radius:10px; background:#18c964; color:#04150e; cursor:pointer; font-weight:700; }
+    .see-more { background:#2a323c; color:#cfe; border:none; border-radius:10px; padding:7px 12px; cursor:pointer; font-weight:700; }
   </style>
 </head>
-<body data-active="intelligence">
+<body>
+  <header>
+    <nav>
+      <a href="feed.html">Feed</a>
+      <a href="vibe.html">Vibe</a>
+      <a href="intelligence.html" class="active">Intelligence</a>
+      <a href="shopping.html">Shopping</a>
+      <a href="message.html">Message</a>
+      <a href="group.html">Group</a>
+      <a href="ebooks.html">Ebooks/Audio</a>
+      <a href="profile.html">Profile</a>
+      <a href="ai.html">EmpathEra AI</a>
+      <a href="#" id="btnLogout" style="color:#ff7777;font-weight:700;">Logout</a>
+    </nav>
+  </header>
+
   <main>
-    <h1>Intelligence</h1>
-
-    <section class="panel">
-      <p><strong>Under construction — coming soon.</strong></p>
-      <p><strong>Our mission for Intelligence:</strong> personal tools that help you think clearly and act kindly—summaries you trust, private notes, and small automations that reduce noise and encourage reflection. Calm, transparent, and in your control.</p>
+    <h1>Intelligence 💡</h1>
+    <section class="card">
+      <input id="intelTitle" type="text" placeholder="Title (e.g. Cosmos, Interstellar)" />
+      <input id="intelDesc" type="text" placeholder="What insight or idea stuck with you?" />
+      <input id="intelFile" type="file" accept="image/*,video/*" />
+      <button id="postBtn">Post</button>
+      <div id="intelErr" style="color:#f87171;margin-top:10px;"></div>
     </section>
-
-    <section class="grid">
-      <article class="card"><h3>Daily brief</h3><p>Signal over noise. A gentle, customizable digest.</p></article>
-      <article class="card"><h3>Notes & reflections</h3><p>Private space to think; share only when ready.</p></article>
-      <article class="card"><h3>Reading queue</h3><p>Save, summarize, revisit without doom-scrolling.</p></article>
-      <article class="card"><h3>Small automations</h3><p>Remind me to check in, water plants, call a friend.</p></article>
-    </section>
+    <div id="intelList"></div>
   </main>
 
-  <script type="module" src="./tabs.js"></script>
-  <script type="module">
-    import { auth } from "./firebase-config.js";
-    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
-    onAuthStateChanged(auth, u => { if (!u) location.href = "./index.html"; });
-  </script>
+  <script type="module" src="./firebase-config.js"></script>
+  <script type="module" src="./auth-guard.js"></script>
+  <script type="module" src="./logout.js"></script>
+  <script type="module" src="./intelligence.js"></script>
 </body>
 </html>
-
